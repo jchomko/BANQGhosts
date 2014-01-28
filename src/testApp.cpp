@@ -1,5 +1,4 @@
 #include "testApp.h"
-#include <list>
 
 
 //--------------------------------------------------------------
@@ -19,77 +18,66 @@ void testApp::setup(){
     mClient.setServerName("");
 
 	backgroundServer.setName("Background");
-	//foregroundServer.setName("Foreground");
-	textServer.setName("Text");
 	
-	backgroundTex.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);  
-	//foregroundTex.allocate(ofGetWidth(), ofGetHeight()/4,GL_RGBA);
+    textServer.setName("Text");
+	backgroundTex.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);
+	
 	textTex.allocate(ofGetWidth(),300, GL_RGBA);
 	
 	//UI
-	smsTriggerIP = "hello hi";
 	
-	smsIP = "192.168.7.254";
 	drawFill = true;
 	float dim = 16;
 	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING; 
-    float length = 320-xInit; 
-	
-	gui = new ofxUICanvas(0,0,length+xInit*2.0,ofGetHeight());   
-	gui->addWidgetDown(new ofxUILabel("JOLIETTE INTERACTIVE", OFX_UI_FONT_LARGE)); 
-	gui->addSpacer(length, 2); 
-	
-	gui->addWidgetDown(new ofxUILabel("BOID CONTROL", OFX_UI_FONT_MEDIUM));
-	gui->addMinimalSlider("STATIC FLYING PUSH", 0, 50, setSeparation, 95, dim);
-	gui->addMinimalSlider("STATIC FLYING PULL", 0, 10, setCohesion, 95, dim);
-	gui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
-	gui->addMinimalSlider("MAXFORCE", 0, 1, setForce, 95, dim);
-    gui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
-	gui->addMinimalSlider("LINE FOLLOW", 0, 200, setNeighbordist, 95, dim);
+    float length = 320-xInit;
+    vector<string> dropdownNames;
     
-    gui->addWidgetDown(new ofxUILabel("VIDEO SETTINGS", OFX_UI_FONT_MEDIUM));
-	gui->addMinimalSlider("VIDEO SCALE", 0, 640, scale, 95, dim);
-	gui->addMinimalSlider("SCALE MAGNITUDE", 0, 300, scaleMagnitude, 95, dim);
-	
-    gui->addWidgetDown(new ofxUILabel(" CV SETTINGS ", OFX_UI_FONT_MEDIUM));
-	gui->addMinimalSlider("THRESHOLD", 0, 100, threshold, 95, dim);
+	for (int i = 0; i < 40; i ++) {
+        dropdownNames.push_back("PATH " + ofToString(i));
+    }
+    editGui = new ofxUICanvas(0,0,length+xInit*2.0,ofGetHeight());
+    recordGui = new ofxUICanvas(0,0,length+xInit*2.0,ofGetHeight());
     
-	gui->addSpacer(length, 2);
-	gui->addWidgetDown(new ofxUILabel("RECORD FLYING", OFX_UI_FONT_MEDIUM));
-	gui->addMinimalSlider("UP MULTIPLIER", 0,10, downMult, 95, dim);
-	gui->addMinimalSlider("DOWN MULTIPLIER", 0, 1, upMult, 95, 0);
-	gui->addMinimalSlider("FLAP THRESHOLD", 0, 1, flapThresh, 95, dim);
-	gui->addMinimalSlider("END RECORD SEQUENCE DELAY", 0, 100 , endRecordSequenceDelay, 95, dim);
-    gui->addMinimalSlider("END SPEED", 0, 2, endSpeed, 95, dim);
-
-    gui->addSpacer(length, 2);
-	gui->addWidgetDown(new ofxUILabel("TEXT", OFX_UI_FONT_MEDIUM));
+	editGui->addWidgetDown(new ofxUILabel("EDIT MODE", OFX_UI_FONT_LARGE)); 
+	editGui->addSpacer(length, 2);
+    ddl = new ofxUIDropDownList(100, "PATHS", dropdownNames, OFX_UI_FONT_MEDIUM);
+	ddl->setAutoClose(true);
+    
+    editGui->addWidgetDown(ddl);
+	editGui->addWidgetDown(new ofxUILabel("BOID CONTROL", OFX_UI_FONT_MEDIUM));
+	editGui->addMinimalSlider("SEPARATION", 0, 50, setSeparation, 95, dim);
+	editGui->addMinimalSlider("COHESION", 0, 10, setCohesion, 95, dim);
+	editGui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
+	editGui->addMinimalSlider("MAXFORCE", 0, 1, setForce, 95, dim);
+    editGui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
+	editGui->addMinimalSlider("LINE FOLLOW", 0, 200, lineFollowMult, 95, dim);
+    
+    //gui->addWidgetDown(new ofxUILabel("VIDEO SETTINGS", OFX_UI_FONT_MEDIUM));
+	//gui->addMinimalSlider("VIDEO SCALE", 0, 640, scale, 95, dim);
+	//gui->addMinimalSlider("SCALE MAGNITUDE", 0, 300, scaleMagnitude, 95, dim);
 	
-	gui->addWidgetDown( new ofxUITextInput("UDP_TARGET_IP", "", 95, dim)); //("UDP_TARGET_IP",smsTriggerIP, 95,dim); //smsIP
-	
-	gui->addMinimalSlider("TEXT SPEED", 0, 5, textSpeed, 95, dim);
+    recordGui->addWidgetDown(new ofxUILabel(" RECORD MODE ", OFX_UI_FONT_MEDIUM));
+	recordGui->addMinimalSlider("THRESHOLD", 0, 100, threshold, 95, dim);
+    
+	recordGui->addSpacer(length, 2);
+	recordGui->addWidgetDown(new ofxUILabel("RECORD FLYING", OFX_UI_FONT_MEDIUM));
+	recordGui->addMinimalSlider("UP MULTIPLIER", 0,10, downMult, 95, dim);
+	recordGui->addMinimalSlider("DOWN MULTIPLIER", 0, 1, upMult, 95, 0);
+	recordGui->addMinimalSlider("FLAP THRESHOLD", 0, 1, flapThresh, 95, dim);
+	recordGui->addMinimalSlider("END RECORD SEQUENCE DELAY", 0, 100 , endRecordSequenceDelay, 95, dim);
+    recordGui->addMinimalSlider("END SPEED", 0, 2, endSpeed, 95, dim);
 		
-	ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
-	gui->loadSettings("GUI/guiSettings.xml"); 
-
+	ofAddListener(recordGui->newGUIEvent,this,&testApp::guiEvent);
+    ofAddListener(editGui->newGUIEvent,this,&testApp::guiEvent);
+    
+	recordGui->loadSettings("GUI/recordSettings.xml");
+    editGui->loadSettings("GUI/editSettings.xml");
+    
+    recordGui->toggleVisible();
+    editGui->toggleVisible();
 	
-	//UDP Communication
-	
-	textMessageConnection.Create();
-	textMessageConnection.Bind(7303);
-	textMessageConnection.SetNonBlocking(true);
-	
-	triggerInConnection.Create();
-	triggerInConnection.Bind(7304);
-	triggerInConnection.SetNonBlocking(true);
-	
-	triggerOutConnection.Create();
-	triggerOutConnection.Connect(smsIP,7305);   //"192.168.7.254" MAC pro IP in Joliette: 
-	triggerOutConnection.SetNonBlocking(true);
-	
-	
-	// Messages
-		sendTrigger = false;
+	//OSC
+    oscReceiver.setup(8212);
 		
 	
 	//Video
@@ -105,13 +93,12 @@ void testApp::setup(){
 	camWidthScale = ofGetWidth();
 	camHeightScale = camWidthScale *0.562; //should give proportions of 16:9
 
-	cout << camHeightScale;
-	cout << camWidthScale;
+	
 	
 	// OpenCV
 	getBackground = false; // true is auto, false is manual
 	
-	highBlob = 9999999;
+    highBlob = 9999999;
 	lowBlob = 100;
 	
 	diffMode  = 0;
@@ -131,10 +118,7 @@ void testApp::setup(){
 	
 	// Recording
 	
-	playIndex = 0;
-	lastPlayIndex = 0;
-	
-	nrDisplaySequences = 12;
+    nrDisplaySequences = 12;
 	bufferSize = 24;
    
 	cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
@@ -157,17 +141,18 @@ void testApp::setup(){
 	playSequenceIndex = 0;
 	sequenceIndex = 0;
 	startIndex = 0;
+    scale = 300;
 	
-	gui->toggleVisible();
+	
 	
 	
 	//XML Settings
-	message = "loading mySettings.xml";
+	message = "loading paths.xml";
 	
-	if (XML.loadFile("mySettings.xml")) {
-		message = "mySettings.xml loaded";
+	if (XML.loadFile("paths.xml")) {
+		message = "paths.xml loaded";
 	}else{
-		message = "unable to load mySettings.xml check data/ folder";
+		message = "unable to load paths.xml check data/ folder";
 	}
 		int numDragTags = XML.getNumTags("STROKE:PT");
 		
@@ -201,16 +186,14 @@ void testApp::setup(){
 
 	
 	// Show Management
-	end = 0;
-	pan = 0;
+	
 	showState = 0;
-	hold = 0;
+	
 	
     
 	//Flock
-	
 	for(int i = 0; i < bufferSize; i ++) {
-		flock.addBoid(ofRandom(-100, -500),ofRandom(100,2*ofGetHeight()/3));
+		flock.addBoid(ofRandom(100, 500),ofRandom(100,2*ofGetHeight()/3));
 	}
     
 	showBoidsHead = 0;
@@ -228,128 +211,87 @@ void testApp::setup(){
 void testApp::update(){
 	 
     
-    
-    //Check for new text message
-	
-	char textMessage[100000];
-	textMessageConnection.Receive(textMessage, 100000);
-	
-	if (textMessage[0] != 0) {
-        
-			string grt = textMessage;
-            messages.push_back(grt);
-		    messageSent.push_back(0);
-            messagePositions.push_back(0);
-			
-	}
-	
-	//Check for new trigger message
-	char triggerInMessage[10];
-	triggerInConnection.Receive(triggerInMessage, 10);
-	int tm;
-	
-	tm = atoi(triggerInMessage);  //Char to Int
-
-	if (tm == 1 || tm == 3 || tm == 4 || tm == 5) { //Show State Trigger
-		//showState += 1;
-	    showState = tm;
-     }
-	
-    
-	if (tm == 6){  //Record Trigger
-		record = 1;
-		
-	}
-    
-	if (tm == 7){ 
-        getBackground = true;
-    }
-	
-    
-	
-	//Show management
-	if (showState > 4) {  // Check at beginning of update because multiple functions use this
+    //Show management
+	if (showState > 1) {  // Check at beginning of update because multiple functions use this
 		showState = 0;
 	}
 		
 	
 	if (showState == 0 ) {
-		
-		hold = 0;   
-		end = 0;	
-		play = 0;
-		
-		messages.clear();
-        messagePositions.clear();
-		messageSent.clear();
-		
+		showBoids = false;
+ 
     }
     
-    
-	//Reset show variables
+    //Reset show variables
 	if (showState == 1) {
         
-        
-        
-        messages.clear();
-        messagePositions.clear();
-        
-        for(int i = 0; i < flock.boids.size(); i ++){
-			
-			flock.boids[i].setLoc(ofVec2f(ofRandom(-100, -700),ofRandom(200,700)));
-			
-		}
-		
-		if (showBoidsHead > nrDisplaySequences) {
-		
-			showBoidsTail = showBoidsHead - nrDisplaySequences;
-		
+        if (showBoidsHead > nrDisplaySequences) {
+            showBoidsTail = showBoidsHead - nrDisplaySequences;
 		}
 		
 		showBoids = true;
-		
-		showState += 1;          
-		
 	
-	}
+    }
 	
-	//Bring flock of video onscreen
-	if (showState == 2) {  
-		
-		play = 1;
-		
-		if (pan < 0) {
-			pan -= pan/100;
-		}
-        
-	}
-	
-	//Flock flies around
-	if (showState == 3) {  
-		
-        hold = 1;
-        
-	}
-	
-	//Flock leaves screen
-	if (showState == 4) {  
-		
-        if(pan < ofGetWidth()){
-            pan += pan/100;
-        }
-        
-        if (pan > ofGetWidth()) {
-            
-            showState+= 1;
-            
-        }
-        
-        showBoids = false;
-        
-	}
 	
 	updateVideo();
+    
+    
+    //Frame Management
+    if(showBoids) {
+		
+		//Check for new frame and increase index if frame is new
+		if(vidGrabber.isFrameNew()){
+			// Dont go out of bounds
+			if(playbackIndex == 99){
+				playbackIndex = 0;
+			}else {
+				playbackIndex++;
+			}
+		}
+	}
 	
+    
+    //If the number of displayed boids is greater than the desired number
+	if ( showBoidsHead - showBoidsTail > nrDisplaySequences ){
+		removeLastBoid = true;
+	}
+
+    
+	//Update Boids
+    for  (int i = 0; i < nrDisplaySequences; i ++){
+    	//This function can be removed once the preferred values are set
+        
+        //TODO update values in Update(), only if something's changed
+        
+        flock.boids[i].updateValues(setSeparation,setAlignment,setCohesion,
+                                    setForce*0.001,setMaxSpeed,setDesiredSeparation, lineFollowMult);
+        flock.boids[i].update(flock.boids);
+		
+        //Get boids location
+       
+       
+        //TODO
+        // paths[pathIndex].points.get etc
+        
+        flock.boids[i].seek(pth.points.getClosestPoint(flock.boids[i].getPredictLoc()));
+        
+	}
+    
+    
+    
+    if(oscReceiver.hasWaitingMessages()){
+        
+        ofxOscMessage om;
+        if( oscReceiver.getNextMessage(&om)){
+         //cout << om.getAddress();
+         // get address and then do something with that value
+         // we'll just parse out the column numbe or something
+            
+        }
+        
+    }
+
 }
 
 
@@ -358,11 +300,7 @@ void testApp::updateVideo(){
 	
 	vidGrabber.update();	
 	
-	
-	if (vidGrabber.isFrameNew()){
-		
-		
-		playIndex++;
+    if (vidGrabber.isFrameNew()){
 		
 		cvColor.setFromPixels(vidGrabber.getPixels(), camWidth, camHeight);
 		cvGray = cvColor;
@@ -392,7 +330,8 @@ void testApp::updateVideo(){
         
 		frameDiff.absDiff(cvGray, lastGray);
 		
-		contourFinder.findContours(cvThresh, lowBlob, highBlob, 1, true, true);
+        //For flapping - may not be necessary
+        contourFinder.findContours(cvThresh, lowBlob, highBlob, 1, true, true);
 		
         //Blurring the threshold image before using it as a cutout softens edges
         cvThresh.blur();
@@ -413,10 +352,9 @@ void testApp::updateVideo(){
 				cutoutPixels[(i*4)+1] = colorPix[(i*3)+1];
 				cutoutPixels[(i*4)+2] = colorPix[(i*3)+2];
 				cutoutPixels[(i*4)+3] = 255;
-				
-			}else
-			//If no content, set pixel to be translucent
-				if(grayPix[i]  < 1){
+            
+            //If no content, set pixel to be translucent
+			}else if(grayPix[i]  < 1){
 					
 					cutoutPixels[(i*4)+0] =	0;
 					cutoutPixels[(i*4)+1] = 0;
@@ -427,22 +365,19 @@ void testApp::updateVideo(){
 			
 		}
         
-	    
-		
-		
-		//Check to see if all 24 spots are full
-		if(showBoids == true && showBoidsHead-showBoidsTail >= bufferSize){
-			record = 0;
-			bufferFull = true;
-		}else {
-			bufferFull= false;
-		}
+//	    //Check to see if all 24 spots are full
+//		if(showBoids == true && showBoidsHead-showBoidsTail >= bufferSize){
+//			record = 0;
+//			bufferFull = true;
+//		}else {
+//			bufferFull= false;
+//		}
         
 		
 		//Record a sequence
        if (record == 1 ) 
 		{
-			//Accessing the buffer directly was the quickest method I could find
+			//Accessing the pixels directly was the quickest method I could find
 		    bufferSequences[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
 			bufferSequences[showBoidsHead%bufferSize].flaps[index] = mappedFlap;
 			index ++;
@@ -453,7 +388,7 @@ void testApp::updateVideo(){
 				
 				index = 0;
 				record = 0;
-				play = 1;
+				
 				
 				//Increment display int
 				showBoidsHead ++;
@@ -461,12 +396,10 @@ void testApp::updateVideo(){
 				//Put that boid offscreen
                 flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofRandom(-100, -400),ofRandom(100,2*ofGetHeight()/3)));
 				
-				
 				//Start end record sequence
 				endRecordSequence = true;
 				endRecordSequenceTime = ofGetElapsedTimeMillis();
 								
-					
 			}
 			
 		}//End Record	
@@ -485,6 +418,7 @@ void testApp::updateVideo(){
 	
 	//If the sequence is done recording
 	if (endRecordSequence) {
+        
 		//Pull the image offscreen
 		if (videoPos < ofGetHeight()) {
 			videoVel += endSpeed;
@@ -507,10 +441,9 @@ void testApp::updateVideo(){
 		
 	}
 	
-	
-	
 	//If a user as raised their arms, and lowered them
 	if (mappedFlap < lastFlap-flapThresh) { //+0.01
+        
 		//Set velocity to flap value
 		videoVel = mappedFlap*upMult;
 		
@@ -523,7 +456,7 @@ void testApp::updateVideo(){
 	//If the video position is above zero
 	if(videoPos > 0) { 
 		//Add gravity
-		videoVel -=  downMult;
+		videoVel -= downMult;
 	}
 	
 	//If we're below the ground
@@ -536,11 +469,9 @@ void testApp::updateVideo(){
 	//Get last flap to compare with new flap
 	lastFlap = mappedFlap;
 	
+    //Draw Syphon client
+    mClient.draw(50, 50);
 	
-	mClient.draw(50, 50);    
-	
-	
-
 }
 //--------------------------------------------------------------
 void testApp::draw(){
@@ -548,86 +479,31 @@ void testApp::draw(){
 	ofClear(255, 255, 255, 0);
 	ofSetColor(255, 255, 255,255);
 	
-	//Draw Flying Videos
+	//Draw Flying Videos to Syphon Layer
 	drawBoids();
 	
 	//Clear Background
 	ofClear(255, 255, 255, 0); //Tranparent Background)
 	ofBackground(255, 255, 255, 0); //Tranparent Background
 	
-	//Text 
-	ofFill();
 	
+    //Draw Monitor/Cutout Video
+	drawMonitor();
+		
+	
+    //Debug
     if (cvImgDisp) {
-         ofSetColor(255, 0, 0); // RED FOR DEBUG
+        drawCVImages();
+	
     }else{
-        ofSetColor(255, 255, 255,255); // White for display color
+       ofSetColor(255, 255, 255,255); // White for display color
     }
-   
-	
-	
-	ofSetColor(210, 229, 247, 255);  //BACKGROUND FOR FLYERS
-	ofRect(0,0, ofGetWidth(), ofGetHeight());     
-	ofSetColor(255, 255, 255,255);
-	////COVER TEXT
-	
-	
-	//Cutout
-	
-    ofSetColor(255, 255, 255,255); //ofSetColor can change the tint of an image, this resets is
-	cutoutTex.draw(0-videoPos,(ofGetHeight()/2)-(camHeightScale/2) , camWidthScale, camHeightScale);  // correct proportions
-	
     
-    
-        
-	//Show the 'End Record Sequence'
-	if (endRecordSequence == true) {
-		
-		string goodbye = "Tu voles maintenant sur la Carte Blanche!";
-		ofPushStyle();
-		ofSetColor(28, 20, 255);
-		ofPushMatrix();
-		
-		ofTranslate(900, (ofGetHeight()/2)+350);
-		
-		ofRotateZ(-90);
-		
-		ofPopMatrix();
-		ofPopStyle();
-		
-	}
-    
-	//Tell people that the buffer is full if that is true
-    if (bufferFull && !endRecordSequence) {
-        
-        string full = "La carte est plein! Jouer, mais le system t'enrigistre pas";
-		ofPushStyle();
-		ofSetColor(28, 20, 255);
-		
-		ofPushMatrix();
-		ofTranslate(900, (ofGetHeight()/2)+480);
-		ofRotateZ(-90);
-        ofPopMatrix();
-		ofPopStyle();
-        
-    }
-	
-	//Progress bar for recording
-	ofRect(800,(ofGetHeight()/2), 20, (100-index)*2); 
-	ofRect(800,(ofGetHeight()/2), 20, -(100-index)*2);
-	
-	
-	//Debug Functions
+    //Debug Functions
+    ofSetColor(255,255,255, 255);
 	ofDrawBitmapString(ofToString(showState), ofGetWidth()-50, ofGetHeight()-50);
 	
-	if (cvImgDisp) {
-		cvImages();
-	}
-    
-	//get the last playIndex before the program loops back 
-    lastPlayIndex = playIndex; 
-	
-	 
+
 }
 
 
@@ -639,21 +515,12 @@ void testApp::drawBoids(){
 	//Set background to be transparent
 	ofBackground(255, 255, 255, 0); 
 	
-	//Show Debug?
-	if (cvImgDisp) {  
-		pth.display();
-	}
-	
-	//If the number of displayed boids is greater than the desired number
-	if ( showBoidsHead-showBoidsTail > nrDisplaySequences ){
-		removeLastBoid = true;
-	}
-	
+    	
 	//Color affects image tint, set to full opacity
 	ofSetColor(255, 255, 255,255);  
 	
 	//Variables for boid displaying
-	ofPoint pathPoint;
+	//ofPoint pathPoint;
 	ofVec3f loc;
 	
 	float zScale;
@@ -665,83 +532,57 @@ void testApp::drawBoids(){
 	{
         
 	for (int j = showBoidsTail; j < showBoidsHead; j ++)
-		{
+		{   
+        
+        //Loop i around the size of the buffer using modulo
+        int i = j % bufferSize;
             
-			//Loop i around the size of the buffer using modulo
-            int i = j % bufferSize;
-            
-			//This function can be removed once the preferred values are set
-			flock.boids[i].updateValues(setSeparation,setAlignment,setCohesion,
-                                    setForce*0.001,setMaxSpeed,setDesiredSeparation, setNeighbordist);
-			
-			flock.boids[i].update(flock.boids,hold);
-		
-			//Get boids location
-			loc.set(flock.boids[i].getLoc());
-		
-			if(hold == 1)
-			{ //If the boids are not flying in
-			//Get the boid's predicted location
-			ofVec2f pl(flock.boids[i].getPredictLoc());
-			//Get the point on the path closest to that predicted location
-			pathPoint = pth.points.getClosestPoint(pl);
-			//Seek that point
-			flock.boids[i].seek(pathPoint);
-			}
-		
-		//Draw the Sequence 
+        loc.set(flock.boids[i].getLoc());
+        
+        //Draw the Sequence
         ofPushMatrix();
-		
-		//Get the dynamic scale of the boids
-		//This perspective effet could be replaced by having 3d boids
-		zScale = flock.boids[i].getScale();
-		//Multiply this value by the scaleMagnitude slider value
-		zScale *= scaleMagnitude;
-
+        
+        //TODO 
+		//Retrieve scale from the path info
+            
+       
 		//Set coordinates
-		ofTranslate(loc.x+pan, loc.y);  	
+		ofTranslate(loc.x, loc.y);  	
 		
 		//Add 90 degrees of rotation to account for the camera's orientation
 		//this may need to change depending on where the camera is placed in future
 		ofRotate(loc.z+90); 
 		
-		//Draw the desired sequence, and retrieve the flap data
-		lFlap = bufferSequences[(i) % bufferSize].playBack(playbackIndex, scale+zScale);
+		bufferSequences[i].playBack(playbackIndex, scale);
         
-        //Add flap data to that boid
-			//Can also be done with a threshold
-		flock.boids[i].push(lFlap*flapMagnitude);
+        ofPushStyle();
+        ofSetColor(255, 0, 0, 255);
+        ofEllipse(0,0,100,100);
+        ofPopStyle();
+            
+        ofPopMatrix();
 		
-		
-		ofPopMatrix();
-			
-		//If we/re looking to remove the last boid the last boid goes offscreen
-            if(removeLastBoid &&
-               flock.boids[showBoidsTail%bufferSize].getLoc().x  > ofGetWidth()-100)
-			{
-				//Increase the show buffer
-				showBoidsTail ++;
+         
+		//TODO change to opacity fade out
+        if(removeLastBoid ){
+           
+              //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
+                //if opacity == 0
+                 // then showBoidsTail ++;
 				//Stop removing the last boid
-                removeLastBoid = false;
+                // removeLastBoid = false;
                 
             }
-		} 
+		}
+        
+        ofPushStyle();
+        ofSetColor(0, 0, 255, 255);
+        ofEllipse(400,400,100,100);
+        ofPopStyle();
+        
     }
 	
-	
-	if(play == 1) {
-		
-		//Check for new frame and increase index if frame is new
-		if(playIndex > lastPlayIndex){ 
-			
-			// Dont go out of bounds
-			if(playbackIndex == 99){   
-				playbackIndex = 0;
-			}else {
-				playbackIndex++;
-			}
-		}
-	}
+   
 	
 	//Load screen data
 	backgroundTex.loadScreenData(0, 0, ofGetWidth(),ofGetHeight());
@@ -753,6 +594,59 @@ void testApp::drawBoids(){
 }
 
 
+void testApp::drawMonitor(){
+    
+    
+    //Cutout for Recording
+	ofSetColor(210, 229, 247, 255);  //BACKGROUND FOR FLYERS
+	ofRect(0,0, ofGetWidth(), ofGetHeight());
+	ofSetColor(255, 255, 255,255);
+	
+    
+    ofSetColor(255, 255, 255,255); //ofSetColor can change the tint of an image
+	cutoutTex.draw(0-videoPos,(ofGetHeight()/2)-(camHeightScale/2) , camWidthScale, camHeightScale);  // correct proportions
+	
+    
+    
+    
+	//Show the 'End Record Sequence'
+    
+	if (endRecordSequence == true) {
+		
+		string goodbye = "Tu voles maintenant sur la Carte Blanche!";
+		ofPushStyle();
+		ofSetColor(28, 20, 255);
+		ofPushMatrix();
+		ofTranslate(900, (ofGetHeight()/2)+350);
+		ofRotateZ(-90);
+		ofPopMatrix();
+		ofPopStyle();
+		
+	}
+    
+	//Tell people that the buffer is full if that is true
+    if (bufferFull && !endRecordSequence) {
+        
+        string full = "La carte est plein! Jouer, mais le system t'enrigistre pas";
+		ofPushStyle();
+		ofSetColor(28, 20, 255);
+		ofPushMatrix();
+		ofTranslate(900, (ofGetHeight()/2)+480);
+		ofRotateZ(-90);
+        ofPopMatrix();
+		ofPopStyle();
+        
+    }
+	
+	//Progress bar for recording
+    //TODO remove hardcoding
+    
+    ofRect(800,(ofGetHeight()/2), 20, (100-index)*2);
+	ofRect(800,(ofGetHeight()/2), 20, -(100-index)*2);
+	
+}
+
+
 void testApp::guiEvent(ofxUIEventArgs &e){
 	
 	//Remove some of these
@@ -760,15 +654,14 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 	string name = e.widget->getName();
 	int kind = e.widget ->getKind();
     
-   
-	//Boid Control
+    //Boid Control
 	
-	if( name == "STATIC FLYING PUSH"){
+	if( name == "SEPARATION"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
 		setSeparation = slider -> getScaledValue();
 	}
-	else if( name == "STATIC FLYING PULL"){
+	else if( name == "COHESION"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
 		setCohesion = slider -> getScaledValue();
@@ -791,15 +684,15 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 	else if( name == "LINE FOLLOW"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
-		setNeighbordist = slider -> getScaledValue();
+		lineFollowMult = slider -> getScaledValue();
 	}
 	
 	//Video Settings
-	else if( name == "VIDEO SCALE"){
-		
-		ofxUISlider *slider = (ofxUISlider *) e.widget;
-		scale = slider -> getScaledValue();
-	}
+//	else if( name == "VIDEO SCALE"){
+//		
+//		ofxUISlider *slider = (ofxUISlider *) e.widget;
+//		scale = slider -> getScaledValue();
+//	}
 	else if( name == "SCALE MAGNITUDE"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
@@ -849,18 +742,22 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
 		textSpeed = slider->getScaledValue();
 	
-	}else if(name == "UDP_TARGET_IP"){
-		ofxUITextInput *text = (ofxUITextInput *) e.widget;
-		smsIP = text->getTextString().c_str();
-		//cout << smsIP;
-	}
+	}else if(name == "PATHS"){
+    
+    ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
+    vector<ofxUIWidget *> &selected = ddlist->getSelected();
+    for(int i = 0; i < selected.size(); i++)
+    {
+        cout << "SELECTED: " << selected[i]->getName() << endl;
+    }
+    }
 		
 	
 			
 }
 
 //Used as a debug function
-void testApp::cvImages()
+void testApp::drawCVImages()
 {
 	camWidth  = camWidth/2;
 	camHeight = camHeight/2;
@@ -941,8 +838,8 @@ void testApp::keyPressed  (int key){
 	
 	
 	if(key == 'g' || key == 'G'){
-		gui->toggleVisible();
-        
+		editGui->toggleVisible();
+        recordGui->toggleVisible();
 	}
 	
     //Increase showstate
@@ -950,58 +847,11 @@ void testApp::keyPressed  (int key){
 		showState += 1;
 	}
 	
-	//Testing Text Display
-	/*
-	if (key == 'd'){
-	
-		string text = "Ca c'èst un meéssagçe de test";
-         messages.push_back(text);
-         messagePositions.push_back(0);
-		messageSent.push_back(0);
-        
-        		
-	}
-	if (key == 'v') {
-		
-		string text = " a,b, c,d,e,f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z";
-		messages.push_back(text);
-        messagePositions.push_back(0);
-		messageSent.push_back(0);
-	}
-	
-	if (key == 'k'){
-		
-		string text = ",, ., :,  , !, @, #, $, %, ?, &, (, ), -, +, ;, 0, 1,2, 3, 4, 5, 6, 7, 8, 9, é, É, è, È, à, À, ç, Ç, ê, Ê, ë , Ë, ù, û, Ù, Û, =, ô, Ô";
-        messages.push_back(text);
-        messagePositions.push_back(0);
-        messageSent.push_back(0);
-		
-	}
-	if (key == 'n') {
-		
-        
-		
-       string text = "Bonjour tout le monde, hôtel, môtel, hôliday inn. À demain. Être en santè. Ça va. ";
-        messages.push_back(text);
-        messagePositions.push_back(0);
-		messageSent.push_back(0);
-        
-    
-    }
-    
-	if (key == 'y') {
-		string text = " Joyeux Noël charmante Joliette! ❤";
-        
-        messages.push_back(text);
-        messagePositions.push_back(0);
-		messageSent.push_back(0);
-	}
-	*/
-    
 	if(key == 'p'){
 		vidGrabber.videoSettings();
 	}
 	
+    //Background sub mode
 	if(key =='1'){
 		diffMode = 0;
 	}else if(key =='2'){
@@ -1009,6 +859,7 @@ void testApp::keyPressed  (int key){
 	}else if(key == '3'){
 		diffMode = 2;
 	}
+    
     
     if(key == OF_KEY_RIGHT){
 		highBlob += 1000;
@@ -1022,6 +873,7 @@ void testApp::keyPressed  (int key){
 		lowBlob -= 1000;
 	}
 	
+    
 	if(key == OF_KEY_UP){
 		threshold += 2;
 	}else if(key == OF_KEY_DOWN){
@@ -1034,6 +886,24 @@ void testApp::keyPressed  (int key){
      record = 1;
           
 	}
+    
+    if(key == 'm'){
+        mode += 1;
+        if(mode > 2){
+            mode = 0;
+        }
+        if(mode == 1){
+            editGui->toggleVisible();
+        }
+        if(mode == 2){
+            editGui->toggleVisible();
+            recordGui->toggleVisible();
+        }
+        if(mode == 0){
+            recordGui->toggleVisible();
+        }
+        
+    }
 	
 
 	
@@ -1099,10 +969,15 @@ void testApp::windowResized(int w, int h){
 
 void testApp::exit(){
 	
-	mClient.unbind();
-	XML.saveFile("mySettings.xml");
-	gui->saveSettings("GUI/guiSettings.xml");
-    delete gui; 
+	
+	XML.saveFile("paths.xml");
+	recordGui->saveSettings("GUI/recordSettings.xml");
+    editGui->saveSettings("GUI/editSettings.xml");
+    
+    delete editGui;
+    delete recordGui;
+    
+    mClient.unbind();
 	
 
 }

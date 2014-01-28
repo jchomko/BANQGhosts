@@ -11,7 +11,10 @@
 #include "Boid.h"
 #include "Sequence.h"
 #include "Path.h"
-#include "ofxNetwork.h"
+#include "ofxOsc.h"
+
+
+#define const int NR_FRAMES = 100;
 
 
 
@@ -27,12 +30,11 @@ public:
 	void update();
 	void draw();
 	void exit();
-	void drawBoids();
-	void drawSnow();
-	void drawText();
+
 	void updateVideo();
-	void drawSnowFromContour();
-	void cvImages();
+	void drawCVImages();
+    void drawBoids();
+    void drawMonitor();
 	
 	void keyPressed(int key);
 	void keyReleased(int key);
@@ -56,55 +58,30 @@ public:
 	
 	// UI 
 	
-	ofxUICanvas *gui;
-	ofxUITextArea *textbox;
+	
+	ofxUICanvas *editGui;
+    ofxUICanvas *recordGui;
+    ofxUIDropDownList *ddl; 
 	void guiEvent(ofxUIEventArgs &e);
 	bool drawFill; 
 	
 	
 	
-	// UDP Communication
-	ofxUDPManager textMessageConnection;
-	ofxUDPManager triggerInConnection;
-	ofxUDPManager triggerOutConnection;
-
-	string UDPmessage;
-	const char *smsIP;
-	string smsTriggerIP;
-	
-			
+	//OSC Communication
+    
+    ofxOscReceiver oscReceiver;
+    
 	
 	
 	//Messages
 	
-
-	vector <string> messages;
+    vector <string> messages;
 	vector <int> messageSent;
     vector <float> messagePositions;
     float textSpeed;
 	bool sendTrigger;
 	
-	/*
-	//Box2d 
-	ofPolyline			drawing;
-	ofPoint				p;
-	vector <ofPoint>	outside;
-	float boun;
-	float frict;
-	float dampening;
-	
-	//Snow
-	
-	ofImage snow;
-	ofTexture snowTex;
-	float snowMax;
-	float snowMin;
-	float snowLeave;
-	float snowReturn;
-	int snowOpacityMin;
-	*/
-	
-	
+		
 	//Video 
 	int 				camWidth;
 	int 				camHeight;
@@ -131,6 +108,7 @@ public:
 	
 	
 	//Recording
+   
 	Sequence bufferSequences[24];
 	float endSpeed;
 	float videoPos;
@@ -145,14 +123,13 @@ public:
 	float flapThresh;
 	float downMult;
 	float upMult;
-	int playIndex;
-	int lastPlayIndex;
+	
 	int endRecordSequenceTime;
 	int endRecordSequenceDelay;
 	bool endRecordSequence;
     bool bufferFull;
 	bool bufferFullDuringShow;
-   
+    
 	    
 
 	//Playback
@@ -197,23 +174,15 @@ public:
 	float setForce;
 	float setDesiredSeparation;
 	int nrBoids;
-	float setNeighbordist;
+	float lineFollowMult;
 	float pushMaxSpeed;
 	
-
-//	int x;
-//	int y;
-//	float z;
-//int start;
 
 	
 	//Show Managment
 	int showState;
-	int hold;
-	int end;
-	float pan;
 	bool cvImgDisp;
-	
+	int mode;
 	
 
 		

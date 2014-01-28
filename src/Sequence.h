@@ -9,15 +9,16 @@
 #ifndef SEQUENCE
 #define	 SEQUENCE
 
-#include "ofMain.h";
+#include "ofMain.h"
+
 
 
 class Sequence{
 public:
-	
 	Sequence();
-	float playBack(int index, int scale);
-	ofPixels pixels[100];
+    
+	void playBack(int index, int scale);
+	ofPixels pixels[100]; 
 	float flaps[100];
 	ofTexture dispTex;
 	

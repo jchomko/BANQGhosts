@@ -14,7 +14,9 @@ Sequence::Sequence(){
 	
 }
 
-float Sequence::playBack(int index, int scale){
+
+
+void Sequence::playBack(int index, int scale){
 	
 	dispTex.loadData(pixels[index]);
 	//1.779 is the ratio of the camera used at Joliette 2012/2013
@@ -25,7 +27,7 @@ float Sequence::playBack(int index, int scale){
 	dispTex.draw(0, 0,scale *1.779, scale);
     
 	//Return the flap value
-	return(flaps[index]);
+	//return(flaps[index]);
 
 }
 
