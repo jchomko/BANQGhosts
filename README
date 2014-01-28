@@ -1,12 +1,11 @@
-OpenFrameworks App for Carte Blanche Joliette - Playmind
-Jonathan Chomko - info@jonathanchomko.com - 2012/2013
+OpenFrameworks App for BANQ Nuit Blanche installation - Playmind
+Jonathan Chomko - info@jonathanchomko.com - 2104
 
 Built using openFrameworks version 007
 
 Dependencies:
-ofxFTGL
-ofxFlocking
-ofxNetwork
+ofxOSC
+ofxFlockingBANQ
 ofxXMLSettings
 ofxUI
 ofxSyphon
@@ -14,18 +13,9 @@ ofxVectorMath
 ofxOpenCv
 
 
-This application detects when users make snow angel movement in front of a webcam and records background subtracted video into a buffer. When signalled, the application then plays the recorded videos, animating their movement around a predefined path.
-The application also receives text message data from a MAX MSP application, rendering it as scrolling text.
-The animated videos and the text messages are output as two separate Syphon streams.
+
 Download a Syphon stream viewer to test and debug the Syphon stream.
 The application is limited to 24 videos at 640 x 360 because of the 2GB RAM limit on 32 bit applications. OpenFrameworks can be run as 64 bit and therefore gain access to the full system RAM, but that requires the use of different video libraries.
-The application communicates with a MAX MSP patch.
-
-Text message communication port: 7303
-Incoming show communication port: 7304
-Outgoing show communication port: 7305
-Outgoing communication also requires an IP which is currently configured in the code.
-
 
 
  
