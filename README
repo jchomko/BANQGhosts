@@ -1,0 +1,88 @@
+OpenFrameworks App for Carte Blanche Joliette - Playmind
+Jonathan Chomko - info@jonathanchomko.com - 2012/2013
+
+Built using openFrameworks version 007
+
+Dependencies:
+ofxFTGL
+ofxFlocking
+ofxNetwork
+ofxXMLSettings
+ofxUI
+ofxSyphon
+ofxVectorMath
+ofxOpenCv
+
+
+This application detects when users make snow angel movement in front of a webcam and records background subtracted video into a buffer. When signalled, the application then plays the recorded videos, animating their movement around a predefined path.
+The application also receives text message data from a MAX MSP application, rendering it as scrolling text.
+The animated videos and the text messages are output as two separate Syphon streams.
+Download a Syphon stream viewer to test and debug the Syphon stream.
+The application is limited to 24 videos at 640 x 360 because of the 2GB RAM limit on 32 bit applications. OpenFrameworks can be run as 64 bit and therefore gain access to the full system RAM, but that requires the use of different video libraries.
+The application communicates with a MAX MSP patch.
+
+Text message communication port: 7303
+Incoming show communication port: 7304
+Outgoing show communication port: 7305
+Outgoing communication also requires an IP which is currently configured in the code.
+
+
+
+ 
+
+
+
+Production:
+Show setup:
+
+1. Calibrate Background
+Press 'b' & use the GUI  or up/down arrow keys to adjust the Threshold value
+Use keys 1,2 & 3 to select between differencing modes.
+
+2. Record Video
+Have users flap arms in front of the camera. Current setup is for users to orient themselves with their feet at the base of the progress bar.
+
+
+Development:
+Setup show
+1. Calibrate Background 
+Press 'b' & use the GUI  or up/down arrow keys to adjust the Threshold value
+Use keys 1,2 & 3 to select between differencing modes.
+
+2. Record Video
+Press 'r' to trigger a recording 
+
+3. Trigger Show
+Press 's' to increment the show state. 
+State 0 is pause
+State 1 clears and resets all variables
+State 2 pans in the videos
+State 3 shows the animated videos flying on the predefined path.
+State 4 brings the videos offscreen
+Show state is shown on the bottom right hand corner of the screen.
+
+
+Modify the Video Path:
+Press 'u' to show the debug information. The path appears as a red line.
+Press X to clear the path. Using a mouse, hold the right button and draw a new path. 
+The path will be saved on shutdown.
+
+
+Show Debug Info:
+Press 'u' to show debug info. On the video record screen you should see the CV frames, and in the syphon "bau
+
+
+Command List:
+
+g - toggle the GUI
+r - record
+f - toggle fullscreen mode
+u - toggle debug mode
+x - clear the path that the videos follow
+s - increment the show state
+p - open camera settings
+right arrow - increases the maximum blob size
+left arrow - decreases the maximum blob size
+up arrow - increases the threshold value for background subtraction
+down arrow - decreases the threshold value for background subtraction
+right mouse button - draw path for videos to follow
