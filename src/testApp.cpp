@@ -849,7 +849,9 @@ void testApp::drawCVImages()
 	ofSetColor(255, 255, 255,255);
 	
 	string info = "";
-		
+	info += "XML Push Level" + ofToString(pathsXML.getPushLevel()) + "\n";
+	
+	
 	info += "number of boids displayed : " + ofToString(showBoidsHead-showBoidsTail) + "\n";
 	info += "showState: " + ofToString(showState) + "\n";
 	
@@ -862,6 +864,8 @@ void testApp::drawCVImages()
 	
 	info += "Record: " +ofToString(record) + "\n";
 	info += "Index: " + ofToString(index) + "\n";
+    
+    
 	
 	info += message +"\n";
 	
@@ -911,7 +915,7 @@ void testApp::keyPressed  (int key){
             for (int i = 0; i < n;  i ++) {
                 pathsXML.clearTagContents("STROKE");
             }
-            
+            //Test viability of this
             pathsXML.popTag();
             pathsXML.clearTagContents("PATH", pathIndex);
             pathsXML.pushTag("PATH", pathIndex);
