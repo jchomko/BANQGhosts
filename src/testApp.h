@@ -14,7 +14,9 @@
 #include "ofxOsc.h"
 
 
-#define const int NR_FRAMES = 100;
+#define NUM_FRAMES 100
+#define NUM_PATHS 40
+#define MIN_VIDEO_SIZE 40
 
 
 
@@ -51,35 +53,23 @@ public:
 	ofTexture textTex;
 	
 	ofxSyphonServer backgroundServer;
-	ofxSyphonServer textServer;
+	//ofxSyphonServer textServer;
 	
 	ofxSyphonClient mClient;
 	
 	
 	// UI 
-	
-	
 	ofxUICanvas *editGui;
     ofxUICanvas *recordGui;
     ofxUIDropDownList *ddl; 
 	void guiEvent(ofxUIEventArgs &e);
 	bool drawFill; 
-	
+	string currentPath;
 	
 	
 	//OSC Communication
-    
     ofxOscReceiver oscReceiver;
     
-	
-	
-	//Messages
-	
-    vector <string> messages;
-	vector <int> messageSent;
-    vector <float> messagePositions;
-    float textSpeed;
-	bool sendTrigger;
 	
 		
 	//Video 
@@ -157,11 +147,17 @@ public:
 
 	//Path
 	Path pth;
+    Path **paths;
+    int pathIndex;
+    string pathId;
+    ofxXmlSettings pathsXML;
+    ofPolyline tempPl;
+    float pathZ;
+    bool pathZoom;
 	
 	//Settings
-	ofxXmlSettings XML;
 	string message;
-	string xmlStructure;
+	//string xmlStructure;
 	int lastTagNumber;
 		
 	
@@ -183,7 +179,7 @@ public:
 	int showState;
 	bool cvImgDisp;
 	int mode;
-	
+	ofxXmlSettings showXML;
 
 		
 	

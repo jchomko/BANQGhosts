@@ -17,6 +17,7 @@ public:
 	Path();
 	
 	ofPolyline points;
+    vector <ofPolyline> polylines;
 	float radius;
 	
 	void addPoint(float x, float y);

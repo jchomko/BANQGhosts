@@ -16,34 +16,32 @@ void testApp::setup(){
 	mClient.setup();
     mClient.setApplicationName("Simple Server");
     mClient.setServerName("");
-
-	backgroundServer.setName("Background");
-	
-    textServer.setName("Text");
+    backgroundServer.setName("Background");
 	backgroundTex.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);
 	
-	textTex.allocate(ofGetWidth(),300, GL_RGBA);
-	
-	//UI
-	
+    
+    //UI
 	drawFill = true;
 	float dim = 16;
 	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING; 
     float length = 320-xInit;
     vector<string> dropdownNames;
     
-	for (int i = 0; i < 40; i ++) {
-        dropdownNames.push_back("PATH " + ofToString(i));
+	for (int i = 0; i < NUM_PATHS; i ++) {
+        dropdownNames.push_back("PATH " + ofToString(i+1));
     }
+    
     editGui = new ofxUICanvas(0,0,length+xInit*2.0,ofGetHeight());
     recordGui = new ofxUICanvas(0,0,length+xInit*2.0,ofGetHeight());
     
 	editGui->addWidgetDown(new ofxUILabel("EDIT MODE", OFX_UI_FONT_LARGE)); 
-	editGui->addSpacer(length, 2);
+	editGui->addSpacer(length, 2); 
     ddl = new ofxUIDropDownList(100, "PATHS", dropdownNames, OFX_UI_FONT_MEDIUM);
 	ddl->setAutoClose(true);
-    
+    ddl->setAllowMultiple(false);
+   
     editGui->addWidgetDown(ddl);
+    
 	editGui->addWidgetDown(new ofxUILabel("BOID CONTROL", OFX_UI_FONT_MEDIUM));
 	editGui->addMinimalSlider("SEPARATION", 0, 50, setSeparation, 95, dim);
 	editGui->addMinimalSlider("COHESION", 0, 10, setCohesion, 95, dim);
@@ -144,50 +142,69 @@ void testApp::setup(){
     scale = 300;
 	
 	
+	//Paths
+    
+    paths = new Path*[NUM_PATHS];
+    
+    for(int i = 0; i < NUM_PATHS; i ++){
+        paths[i] = new Path();
+    
+    }
+    
+    
+    pathsXML.loadFile("paths.xml");
+    
+    int availPaths = pathsXML.getNumTags("PATH");
+    cout << "availPaths: " << availPaths << endl;
+    
+    for (int p = 0; p < availPaths; p ++) {
+        
+        pathsXML.pushTag("PATH", p);
+        
+        for (int s = 0; s < pathsXML.getNumTags("STROKE"); s ++) {
+            
+                pathsXML.pushTag("STROKE",s);
+            
+                ofPolyline pl;
+            
+                if( pathsXML.getNumTags("PT") > 0){
+                    
+                    for(int i = 0; i < pathsXML.getNumTags("PT"); i++){
+                    
+                        int x = pathsXML.getValue("PT:X", 0, i);
+                        int y = pathsXML.getValue("PT:Y", 0, i);
+                        int z = pathsXML.getValue("PT:Z", 0, i);
+                    
+                        pl.addVertex(x, y, z);
+                    
+                    }
+                    cout << " PL.size: " << pl.size() << endl;
+                    paths[p]->polylines.push_back(pl);
+                }
+            
+                pathsXML.popTag();
+            
+            }
+            
+            //this pops us out of the STROKE tag
+            //sets the root back to the xml document
+    
+        pathsXML.popTag();
+    }
 	
-	
-	//XML Settings
-	message = "loading paths.xml";
-	
-	if (XML.loadFile("paths.xml")) {
-		message = "paths.xml loaded";
-	}else{
-		message = "unable to load paths.xml check data/ folder";
-	}
-		int numDragTags = XML.getNumTags("STROKE:PT");
-		
-		if(numDragTags > 0 ){
-		
-			XML.pushTag("STROKE", numDragTags-1);
-			
-			int numPtTags = XML.getNumTags("PT");
-			
-			if (numPtTags > 0) {
-				
-				int totalToRead = numPtTags;
-				
-				for (int i = 0; i < totalToRead; i ++) {
-					
-					int x = XML.getValue("PT:X", 0,i);
-					int y = XML.getValue("PT:Y", 0,i);
-					pth.addPoint(x, y);
-					
-				}
-				
-			}
-			
-			XML.popTag();
-		
-		}
-	
+    pathZ = MIN_VIDEO_SIZE;
 	
 	//Debug 
 	cvImgDisp = false;
 
 	
 	// Show Management
+    showXML.loadFile("show.xml");
+    pathIndex = showXML.getValue("PATH_INDEX", 0);
 	
-	showState = 0;
+    cout << "pathIndex: " << pathIndex << endl;
+    
+    showState = 0;
 	
 	
     
@@ -200,9 +217,6 @@ void testApp::setup(){
 	showBoidsTail = 0;
 	showBoids = false;
 	removeLastBoid = false;
-    
-    
-    
     
 }
 
@@ -256,29 +270,47 @@ void testApp::update(){
 	if ( showBoidsHead - showBoidsTail > nrDisplaySequences ){
 		removeLastBoid = true;
 	}
-
+    
+    
+    float shortest = 1000000;
+    ofVec2f predict(0,0);
+    ofPoint closestPoint(0,0);
+    ofVec2f goal(0,0);
     
 	//Update Boids
     for  (int i = 0; i < nrDisplaySequences; i ++){
+        
     	//This function can be removed once the preferred values are set
         
         //TODO update values in Update(), only if something's changed
         
         flock.boids[i].updateValues(setSeparation,setAlignment,setCohesion,
                                     setForce*0.001,setMaxSpeed,setDesiredSeparation, lineFollowMult);
-        flock.boids[i].update(flock.boids);
-		
-        //Get boids location
-       
-       
-        //TODO
-        // paths[pathIndex].points.get etc
         
-        flock.boids[i].seek(pth.points.getClosestPoint(flock.boids[i].getPredictLoc()));
+        flock.boids[i].update(flock.boids);
+        
+        shortest = 1000000;
+        
+        predict = flock.boids[i].getPredictLoc();
+        
+        for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+
+            closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+            
+            float d = predict.distance(closestPoint);
+            
+            if(d < shortest){
+                
+                shortest = d;
+                goal = closestPoint;
+                
+            }
+        }
+        flock.boids[i].scale = closestPoint.z;
+        
+        flock.boids[i].seek(goal);
         
 	}
-    
-    
     
     if(oscReceiver.hasWaitingMessages()){
         
@@ -287,11 +319,21 @@ void testApp::update(){
          //cout << om.getAddress();
          // get address and then do something with that value
          // we'll just parse out the column numbe or something
-            
         }
-        
     }
-
+    
+    
+    if(mode == 1){
+        if(pathZoom){
+            pathZ += 1;
+        }else{
+         if(pathZ > MIN_VIDEO_SIZE) {
+            pathZ -= 1;
+           }
+        }
+    
+    }
+    
 }
 
 
@@ -394,7 +436,7 @@ void testApp::updateVideo(){
 				showBoidsHead ++;
 				
 				//Put that boid offscreen
-                flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofRandom(-100, -400),ofRandom(100,2*ofGetHeight()/3)));
+                flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofRandom(100, 400),ofRandom(100,2*ofGetHeight()/3)));
 				
 				//Start end record sequence
 				endRecordSequence = true;
@@ -481,22 +523,51 @@ void testApp::draw(){
 	
 	//Draw Flying Videos to Syphon Layer
 	drawBoids();
-	
-	//Clear Background
-	ofClear(255, 255, 255, 0); //Tranparent Background)
-	ofBackground(255, 255, 255, 0); //Tranparent Background
-	
-	
-    //Draw Monitor/Cutout Video
-	drawMonitor();
-		
-	
-    //Debug
+    
+	if(mode == 1){
+    
+        ofPushStyle();
+        ofSetColor(0, 0, 244);
+        ofNoFill();
+        //Draw Temp Line
+        vector<ofPoint> pth = tempPl.getVertices();
+        
+        for (int p = 0; p < pth.size(); p++ ) {
+            
+            ofEllipse(pth[p].x, pth[p].y, pth[p].z, pth[p].z);
+            
+        }
+        
+        //Draw Saved Lines
+        for (int i = 0; i < paths[pathIndex]->polylines.size(); i ++) {
+            vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
+            
+            for (int p = 0; p < pth.size(); p++ ) {
+                
+                ofEllipse(pth[p].x, pth[p].y, pth[p].z, pth[p].z);
+            
+            }
+//            paths[pathIndex]->polylines[i].draw();
+        
+        }
+        
+        ofPopStyle();
+        
+    }
+    
+    if(mode!= 1){
+        //Clear Background
+        ofClear(255, 255, 255, 0); //Tranparent Background)
+        ofBackground(255, 255, 255, 0); //Tranparent Background
+        
+        //Draw Monitor/Cutout Video
+        drawMonitor();
+	}
+	//Debug
     if (cvImgDisp) {
-        drawCVImages();
-	
-    }else{
-       ofSetColor(255, 255, 255,255); // White for display color
+       drawCVImages();
+        }else{
+        ofSetColor(255, 255, 255,255); // White for display color
     }
     
     //Debug Functions
@@ -505,9 +576,6 @@ void testApp::draw(){
 	
 
 }
-
-
-
 
 
 void testApp::drawBoids(){
@@ -553,13 +621,9 @@ void testApp::drawBoids(){
 		//this may need to change depending on where the camera is placed in future
 		ofRotate(loc.z+90); 
 		
-		bufferSequences[i].playBack(playbackIndex, scale);
+		bufferSequences[i].playBack(playbackIndex, flock.boids[i].scale);
         
-        ofPushStyle();
-        ofSetColor(255, 0, 0, 255);
-        ofEllipse(0,0,100,100);
-        ofPopStyle();
-            
+                   
         ofPopMatrix();
 		
          
@@ -574,12 +638,6 @@ void testApp::drawBoids(){
                 
             }
 		}
-        
-        ofPushStyle();
-        ofSetColor(0, 0, 255, 255);
-        ofEllipse(400,400,100,100);
-        ofPopStyle();
-        
     }
 	
    
@@ -736,20 +794,36 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 		
 	}
 	
-	//Text Speed
-	else if(name == "TEXT SPEED" ){
-		
-		ofxUISlider *slider = (ofxUISlider *) e.widget;
-		textSpeed = slider->getScaledValue();
-	
-	}else if(name == "PATHS"){
+	else if(name == "PATHS"){
     
     ofxUIDropDownList *ddlist = (ofxUIDropDownList *) e.widget;
     vector<ofxUIWidget *> &selected = ddlist->getSelected();
+  
     for(int i = 0; i < selected.size(); i++)
+    
     {
-        cout << "SELECTED: " << selected[i]->getName() << endl;
+        
+        
+        int in = selected[i]->getID();
+        in /= 2;
+        in -= 1;
+        
+        cout << "pathIndex: " << in << endl;
+        pathIndex = in;
+        pathsXML.popTag();
+        
+        if (!pathsXML.tagExists("PATH", pathIndex)) {
+            pathsXML.addTag("PATH");
+        }
+        pathsXML.pushTag("PATH", pathIndex);
+        
+        //check if xml tag exists.
+        // if no, add xml tag here
+        //set global "path selected"
+        //but push in only when drawing
+        
     }
+        
     }
 		
 	
@@ -785,7 +859,6 @@ void testApp::drawCVImages()
 	info += "showBoidsHead % bufferSize " +ofToString(showBoidsHead % bufferSize) + "\n";
 	info += "showBoidsTail % bufferSize: " +ofToString(showBoidsTail % bufferSize) + "\n";
 	
-	info += "Number of Messages : " +ofToString(messages.size()) + "\n";
 	
 	info += "Record: " +ofToString(record) + "\n";
 	info += "Index: " + ofToString(index) + "\n";
@@ -830,15 +903,27 @@ void testApp::keyPressed  (int key){
     
 	//Clear path
     if (key == 'x' || key == 'X') {
-		pth.points.clear();
-		XML.clear();
-		lastTagNumber	= XML.addTag("STROKE");
-		xmlStructure	= "<STROKE>\n";
+        
+        if(mode == 1 && pathsXML.getPushLevel() > 0){
+            
+            int n = pathsXML.getNumTags("STROKE");
+            
+            for (int i = 0; i < n;  i ++) {
+                pathsXML.clearTagContents("STROKE");
+            }
+            
+            pathsXML.popTag();
+            pathsXML.clearTagContents("PATH", pathIndex);
+            pathsXML.pushTag("PATH", pathIndex);
+            pathsXML.saveFile("paths.xml");
+            paths[pathIndex]->polylines.clear();
+            
+        }
 	}
 	
 	
 	if(key == 'g' || key == 'G'){
-		editGui->toggleVisible();
+        editGui->toggleVisible();
         recordGui->toggleVisible();
 	}
 	
@@ -848,7 +933,7 @@ void testApp::keyPressed  (int key){
 	}
 	
 	if(key == 'p'){
-		vidGrabber.videoSettings();
+		
 	}
 	
     //Background sub mode
@@ -888,14 +973,23 @@ void testApp::keyPressed  (int key){
 	}
     
     if(key == 'm'){
+        
         mode += 1;
+        
         if(mode > 2){
             mode = 0;
         }
         if(mode == 1){
+            
+            if (!pathsXML.tagExists("PATH", pathIndex)) {
+                pathsXML.addTag("PATH");
+            }
+            pathsXML.pushTag("PATH", pathIndex);
+            showState = 1;
             editGui->toggleVisible();
         }
         if(mode == 2){
+            pathsXML.popTag();
             editGui->toggleVisible();
             recordGui->toggleVisible();
         }
@@ -903,6 +997,13 @@ void testApp::keyPressed  (int key){
             recordGui->toggleVisible();
         }
         
+    }
+    
+    if(key == ' '){
+        if (mode == 1) {
+            pathZoom = true;
+        }
+    
     }
 	
 
@@ -915,7 +1016,8 @@ void testApp::keyPressed  (int key){
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
-	
+	pathZoom = false;
+    
 }
 
 //--------------------------------------------------------------
@@ -933,33 +1035,39 @@ void testApp::mouseDragged(int x, int y, int button){
 		int mx = (int)ofMap(x,0, ofGetWidth(),-100,  ofGetWidth()+100);
 		int my = (int)ofMap(y,0, ofGetHeight(),   0, ofGetHeight());
 		
-		pth.addPoint(mx, my);
-		
-	if (XML.pushTag("STROKE", lastTagNumber)) {
-		
-		int tagNum = XML.addTag("PT");
-		XML.setValue("PT:X", mx, tagNum);
-		XML.setValue("PT:Y", my, tagNum);
-		XML.popTag();
-		
-		}
-	}
+		//pth.addPoint(mx, my);
+		tempPl.addVertex(mx,my, pathZ);
+
+	if(pathsXML.pushTag("STROKE", lastTagNumber)){
+        int tagNum = pathsXML.addTag("PT");
+        pathsXML.setValue("PT:X", x, tagNum);
+        pathsXML.setValue("PT:Y", y, tagNum);
+        pathsXML.setValue("PT:Z", pathZ, tagNum);
+        pathsXML.popTag();
+      }
+        
+    }
 	
 }
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
 	
-	if(button == 1){
-		flock.addBoid(x,y);
-	}
+    lastTagNumber = pathsXML.addTag("STROKE");
+    
 	
 }
 
 //--------------------------------------------------------------
 void testApp::mouseReleased(int x, int y, int button){
-	
-						
+    
+    if (tempPl.size() > 0) {
+    
+        paths[pathIndex]->polylines.push_back(tempPl);
+        tempPl.clear();
+        
+    }
+    pathsXML.saveFile("paths.xml");
 }
 
 //--------------------------------------------------------------
@@ -969,8 +1077,10 @@ void testApp::windowResized(int w, int h){
 
 void testApp::exit(){
 	
-	
-	XML.saveFile("paths.xml");
+    showXML.setValue("PATH_INDEX", pathIndex);
+    showXML.saveFile("show.xml");
+    
+    pathsXML.saveFile("paths.xml");
 	recordGui->saveSettings("GUI/recordSettings.xml");
     editGui->saveSettings("GUI/editSettings.xml");
     
@@ -978,6 +1088,7 @@ void testApp::exit(){
     delete recordGui;
     
     mClient.unbind();
+  
 	
 
 }
