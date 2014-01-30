@@ -17,6 +17,7 @@
 #define NUM_FRAMES 100
 #define NUM_PATHS 40
 #define MIN_VIDEO_SIZE 40
+#define NUM_SEQUENCES 24
 
 
 

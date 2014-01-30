@@ -117,7 +117,7 @@ void testApp::setup(){
 	// Recording
 	
     nrDisplaySequences = 12;
-	bufferSize = 24;
+	bufferSize = NUM_SEQUENCES;
    
 	cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
 	cutoutPixels = new unsigned char[camWidth*camHeight*4];
@@ -209,7 +209,7 @@ void testApp::setup(){
 	
     
 	//Flock
-	for(int i = 0; i < bufferSize; i ++) {
+	for(int i = 0; i < NUM_SEQUENCES; i ++) {
 		flock.addBoid(ofRandom(100, 500),ofRandom(100,2*ofGetHeight()/3));
 	}
     
@@ -307,7 +307,6 @@ void testApp::update(){
             }
         }
         flock.boids[i].scale = closestPoint.z;
-        
         flock.boids[i].seek(goal);
         
 	}
@@ -420,9 +419,11 @@ void testApp::updateVideo(){
        if (record == 1 ) 
 		{
 			//Accessing the pixels directly was the quickest method I could find
-		    bufferSequences[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
-			bufferSequences[showBoidsHead%bufferSize].flaps[index] = mappedFlap;
-			index ++;
+		    //bufferSequences[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
+            //bufferSequences[showBoidsHead%bufferSize].flaps[index] = mappedFlap;
+            
+            flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
+            index ++;
 			
 			//Size of a Sequence is hard-coded here and in Sequence.h
 			if (index == 100) 
@@ -621,8 +622,8 @@ void testApp::drawBoids(){
 		//this may need to change depending on where the camera is placed in future
 		ofRotate(loc.z+90); 
 		
-		bufferSequences[i].playBack(playbackIndex, flock.boids[i].scale);
-        
+		//bufferSequences[i].playBack(playbackIndex, flock.boids[i].scale);
+        flock.boids[i].drawVideo(playbackIndex);
                    
         ofPopMatrix();
 		

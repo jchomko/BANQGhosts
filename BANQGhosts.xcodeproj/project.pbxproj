@@ -95,10 +95,10 @@
 
 /* Begin PBXFileReference section */
 		7D5256EB1898410C00E816E3 /* BANQGhostsDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BANQGhostsDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7D5256ED1898476B00E816E3 /* Boid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Boid.cpp; sourceTree = "<group>"; };
-		7D5256EE1898476B00E816E3 /* Boid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Boid.h; sourceTree = "<group>"; };
-		7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlocking.cpp; sourceTree = "<group>"; };
-		7D5256F01898476B00E816E3 /* ofxFlocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxFlocking.h; sourceTree = "<group>"; };
+		7D5256ED1898476B00E816E3 /* Boid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Boid.cpp; path = ../../../../addons/ofxFlockingBANQ/Boid.cpp; sourceTree = "<group>"; };
+		7D5256EE1898476B00E816E3 /* Boid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Boid.h; path = ../../../../addons/ofxFlockingBANQ/Boid.h; sourceTree = "<group>"; };
+		7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxFlocking.cpp; path = ../../../../addons/ofxFlockingBANQ/ofxFlocking.cpp; sourceTree = "<group>"; };
+		7D5256F01898476B00E816E3 /* ofxFlocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxFlocking.h; path = ../../../../addons/ofxFlockingBANQ/ofxFlocking.h; sourceTree = "<group>"; };
 		7D5256F5189853E500E816E3 /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = install.xml; sourceTree = "<group>"; };
 		7D5256FA189853E500E816E3 /* IpEndpointName.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpEndpointName.h; sourceTree = "<group>"; };
 		7D5256FB189853E500E816E3 /* NetworkingUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkingUtils.h; sourceTree = "<group>"; };
@@ -317,18 +317,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7D5256EC1898476B00E816E3 /* ofxFlockingBANQ */ = {
-			isa = PBXGroup;
-			children = (
-				7D5256ED1898476B00E816E3 /* Boid.cpp */,
-				7D5256EE1898476B00E816E3 /* Boid.h */,
-				7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */,
-				7D5256F01898476B00E816E3 /* ofxFlocking.h */,
-			);
-			name = ofxFlockingBANQ;
-			path = ../../../addons/ofxFlockingBANQ;
-			sourceTree = "<group>";
-		};
 		7D5256F4189853E500E816E3 /* ofxOsc */ = {
 			isa = PBXGroup;
 			children = (
@@ -430,7 +418,6 @@
 			isa = PBXGroup;
 			children = (
 				7D5256F4189853E500E816E3 /* ofxOsc */,
-				7D5256EC1898476B00E816E3 /* ofxFlockingBANQ */,
 				CB63F7D516481C2C0013D3A2 /* ofxXmlSettings */,
 				CB63F78F16481BC40013D3A2 /* ofxUI */,
 				CB0458F216437AE800296F4A /* ofxSyphon */,
@@ -984,6 +971,10 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				7D5256ED1898476B00E816E3 /* Boid.cpp */,
+				7D5256EE1898476B00E816E3 /* Boid.h */,
+				7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */,
+				7D5256F01898476B00E816E3 /* ofxFlocking.h */,
 				CBBC42F3165ED7E2005CA3D7 /* Sequence.cpp */,
 				CBBC42F4165ED7E2005CA3D7 /* Sequence.h */,
 				CBBC421B165EC0CB005CA3D7 /* Path.cpp */,
