@@ -80,6 +80,7 @@ public:
 		
 	float angle;
     
+    float rot;
     
     //Sequence Variables
     

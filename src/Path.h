@@ -24,7 +24,8 @@ public:
     vector <ofPoint> endPoints;
     
 	float radius;
-	
+	float rot;
+    
 	void addPoint(float x, float y);
 	void display();
 	

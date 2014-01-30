@@ -79,7 +79,21 @@ Boid::Boid(int x, int y) {
 
 void Boid::drawVideo(int index){
 	
-	dispTex.loadData(pixels[index]);
+    
+   
+    ofVec3f l = getLoc();
+    //Draw the Sequence
+    ofPushMatrix();
+    
+    //Set coordinates
+    ofTranslate(l.x, l.y);
+    
+    //Add 90 degrees of rotation to account for the camera's orientation
+    //this may need to change depending on where the camera is placed in future
+    
+    ofRotate(l.z+rot); //+90
+    
+    dispTex.loadData(pixels[index]);
 	//1.779 is the ratio of the camera used at Joliette 2012/2013
 	//This should change if a new camera is used
 	dispTex.setAnchorPoint((scale*1.779)/2, scale/3);
@@ -89,6 +103,8 @@ void Boid::drawVideo(int index){
     
 	//Return the flap value
 	//return(flaps[index]);
+    
+    ofPopMatrix();
     
 }
 
@@ -264,7 +280,7 @@ ofVec3f Boid::getLoc(){
 	
 	//float angle =(float)atan2(-avg.y, avg.x);
 	float angle = (float)atan2(-avg.y, avg.x);
-	float theta =  -1.0*angle;
+    float theta =  -1.0*angle;
 	float heading2D = ofRadToDeg(theta)+90;
 	
 	
@@ -272,6 +288,7 @@ ofVec3f Boid::getLoc(){
 	l.x = loc.x + noise.x*50;
 	l.y = loc.y + noise.y*50;
 	l.z = heading2D;
+    
 	l += pushLoc;
 	
 	return l;

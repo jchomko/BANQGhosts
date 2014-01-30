@@ -156,6 +156,7 @@ public:
     ofPolyline tempPl;
     float pathZ;
     bool pathZoom;
+    float boidRotation;
 	
 	//Settings
 	string message;

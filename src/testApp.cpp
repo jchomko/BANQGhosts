@@ -8,7 +8,7 @@ void testApp::setup(){
 		
 	ofEnableAlphaBlending();  
 	ofSetFrameRate(30);
-	
+	//ofSetDataPathRoot("../Resources/data/");
 	//ofSetDataPathRoot("./data/");
 	//if we need to package up program
 	
@@ -46,6 +46,8 @@ void testApp::setup(){
     editGui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
 	//editGui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
 	editGui->addMinimalSlider("LINE FOLLOW", 0, 200, lineFollowMult, 95, dim);
+    editGui->addMinimalSlider("ROTATION", 0, 360, boidRotation, 95, dim);
+    
   
     
     ddl = new ofxUIDropDownList(100, "PATHS", dropdownNames, OFX_UI_FONT_MEDIUM);
@@ -193,8 +195,9 @@ void testApp::setup(){
 //                    paths[p]->polylines.push_back(pl);
                 }
             
-                pathsXML.popTag();
             
+                pathsXML.popTag();
+                paths[p]->rot = pathsXML.getValue("ROTATE", 0);
             }
             
             //this pops us out of the STROKE tag
@@ -297,6 +300,8 @@ void testApp::update(){
     ofPoint closestPoint(0,0);
     ofVec2f goal(0,0);
     int polyIndex = 0;
+    
+    
 	//Update Boids
     for  (int i = 0; i < nrDisplaySequences; i ++){
         
@@ -341,7 +346,9 @@ void testApp::update(){
                 
             }
         }
-
+        
+        
+        flock.boids[i].rot = paths[pathIndex]->rot;
         flock.boids[i].scale = closestPoint.z;
         flock.boids[i].seek(goal);
        
@@ -628,24 +635,13 @@ void testApp::draw(){
             ofSetColor(0, 255, 0);
             ofEllipse(paths[pathIndex]->startPoints[i], 40, 40);
             ofPopStyle();
-//            paths[pathIndex]->polylines[i].draw();
-        
         }
-        
-        
-//        ofVec2f startPoint = paths[pathIndex]->startPoints[0];
-//        ofPushStyle();
-//        ofSetColor(0);
-//        ofFill();
-//        ofEllipse(startPoint, 40, 40);
-//        ofPopStyle();
-        
+
         ofPopStyle();
         
         
-    }
-    
-    if(mode!= 1){
+    } else { //Anything other than mode 1
+        
         //Clear Background
         ofClear(255, 255, 255, 0); //Tranparent Background)
         ofBackground(255, 255, 255, 0); //Tranparent Background
@@ -653,11 +649,13 @@ void testApp::draw(){
         //Draw Monitor/Cutout Video
         drawMonitor();
 	}
-	//Debug
+    
+    
+	//Debug can be visible anywhere
     if (cvImgDisp) {
-       drawCVImages();
+            drawCVImages();
         }else{
-        ofSetColor(255, 255, 255,255); // White for display color
+            ofSetColor(255, 255, 255,255); // White for display color
     }
     
     //Debug Functions
@@ -673,8 +671,7 @@ void testApp::drawBoids(){
 	//Set background to be transparent
 	ofBackground(255, 255, 255, 0); 
 	
-    	
-	//Color affects image tint, set to full opacity
+    //Color affects image tint, set to full opacity
 	ofSetColor(255, 255, 255,255);  
 	
 	//Variables for boid displaying
@@ -695,29 +692,10 @@ void testApp::drawBoids(){
         //Loop i around the size of the buffer using modulo
         int i = j % bufferSize;
             
-        loc.set(flock.boids[i].getLoc());
-        
-        //Draw the Sequence
-        ofPushMatrix();
-        
-        //TODO 
-		//Retrieve scale from the path info
-            
        
-		//Set coordinates
-		ofTranslate(loc.x, loc.y);  	
-		
-		//Add 90 degrees of rotation to account for the camera's orientation
-		//this may need to change depending on where the camera is placed in future
-		ofRotate(loc.z+90); 
-		
-		//bufferSequences[i].playBack(playbackIndex, flock.boids[i].scale);
         flock.boids[i].drawVideo(playbackIndex);
-                   
-        ofPopMatrix();
-		
-         
-		//TODO change to opacity fade out
+        
+        //TODO change to opacity fade out
         if(removeLastBoid ){
            
               //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
@@ -725,7 +703,6 @@ void testApp::drawBoids(){
                   showBoidsTail ++;
 				//Stop removing the last boid
                   removeLastBoid = false;
-                
             }
 		}
     }
@@ -748,18 +725,12 @@ void testApp::drawMonitor(){
     //Cutout for Recording
 	ofSetColor(210, 229, 247, 255);  //BACKGROUND FOR FLYERS
 	ofRect(0,0, ofGetWidth(), ofGetHeight());
-	ofSetColor(255, 255, 255,255);
 	
-    
     ofSetColor(255, 255, 255,255); //ofSetColor can change the tint of an image
 	cutoutTex.draw(0-videoPos,(ofGetHeight()/2)-(camHeightScale/2) , camWidthScale, camHeightScale);  // correct proportions
 	
-    
-    
-    
-	//Show the 'End Record Sequence'
-    
-	if (endRecordSequence == true) {
+    //Show the 'End Record Sequence'
+    if (endRecordSequence == true) {
 		
 		string goodbye = "Tu voles maintenant sur la Carte Blanche!";
 		ofPushStyle();
@@ -842,11 +813,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 	}
 	
 	//Video Settings
-//	else if( name == "VIDEO SCALE"){
-//		
-//		ofxUISlider *slider = (ofxUISlider *) e.widget;
-//		scale = slider -> getScaledValue();
-//	}
+
 	else if( name == "SCALE MAGNITUDE"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
@@ -921,6 +888,17 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
         
     }
+    
+    else if(name == "ROTATION"){
+		
+		ofxUISlider *slider = (ofxUISlider *) e.widget;
+		boidRotation =slider -> getScaledValue();
+		
+//        paths[pathIndex]->rot = boidRotation;
+//        pathsXML.setValue("ROTATE", boidRotation);
+        
+        
+	}
 		
 	
 			
@@ -1188,9 +1166,11 @@ void testApp::mouseReleased(int x, int y, int button){
     
     if (tempPl.size() > 0) {
         
-        paths[pathIndex]->addPath(tempPl);
+        tempPl.simplify();
         
-        //paths[pathIndex]->polylines.push_back(tempPl);
+        paths[pathIndex]->addPath(tempPl);
+        paths[pathIndex]->rot = boidRotation;
+        pathsXML.setValue("ROTATE", boidRotation);
         
         tempPl.clear();
         
@@ -1205,6 +1185,7 @@ void testApp::windowResized(int w, int h){
 
 void testApp::exit(){
 	
+   
     showXML.setValue("PATH_INDEX", pathIndex);
     showXML.saveFile("show.xml");
    
