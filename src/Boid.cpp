@@ -93,43 +93,45 @@ void Boid::drawVideo(int index){
 }
 
 
-void Boid::updateValues(float _s , float _a , float _c,
-						float _sF, float _sS, float _dS, float _sN){
-	s = _s; //Separation
-	a = _a; //Cohesion
-	c = _c; //Alignement
-	maxSteerForce = _sF;
-	maxspeed = _sS;
-	neighbordist = _sN;
-	desiredseparation = _dS;
-
+void Boid::updateValues(float _separation,float _maxforce, float _maxspeed, float _seekforce) {
+	
+    s = _separation * 0.001; //Separation scale +
+	//a = _a; //Cohesion
+	//c = _c; //Alignement
+    
+	maxSteerForce = _maxforce;
+	maxspeed = _maxspeed;
+	neighbordist = _seekforce * 0.1;
+    
+    //desiredseparation = _dS;
 }
 
 void Boid::setLoc(ofVec2f p){
-	loc.set(p[0],p[1]);
-	//loc.x=p[0];
-	//loc.y=p[1];
-}
-
-void Boid::push(float ms){
-	ofVec2f h;
-	
-	psh = ms;
-		//float a = ofMap(angle, -PI, PI, -1,1);
-	
-	predict *= (75*ms);
-	ofVec2f predictLoc = loc + predict;
-
-	ofLine(loc.x, loc.y, predictLoc.x, predictLoc.y);
-		
-	//pushLoc = predict;
-	loc = predictLoc;
-	
-	ofSetColor(244, 0, 0);
-	ofEllipse(loc.x, loc.y, ms*25, ms*25);
-	ofSetColor(255, 255, 255,255);
+    
+	loc.set(p.x,p.y);
 	
 }
+
+//
+//void Boid::push(float ms){
+//	ofVec2f h;
+//	
+//	psh = ms;
+//		//float a = ofMap(angle, -PI, PI, -1,1);
+//	
+//	predict *= (75*ms);
+//	ofVec2f predictLoc = loc + predict;
+//
+//	ofLine(loc.x, loc.y, predictLoc.x, predictLoc.y);
+//		
+//	//pushLoc = predict;
+//	loc = predictLoc;
+//	
+//	ofSetColor(244, 0, 0);
+//	ofEllipse(loc.x, loc.y, ms*25, ms*25);
+//	ofSetColor(255, 255, 255,255);
+//	
+//}
 
 
 
@@ -240,8 +242,9 @@ ofVec3f Boid::addNoise(){
 
 ofVec2f Boid::getPredictLoc(){
 	ofVec2f p(predict);
-	p *= 75;
-	p += loc;
+    
+	p *= 75; // * 175
+ 	p += loc;
 	return p;
 
 }
@@ -297,23 +300,28 @@ void Boid::draw() {
 }
 
 void Boid::flock(vector<Boid> &boids) {
+    
 	ofVec2f sep = separate(boids);
-//	ofVec2f ali = align(boids);
-//	ofVec2f coh = cohesion(boids);
+	//ofVec2f ali = align(boids);
+	//ofVec2f coh = cohesion(boids);
 	
 	// Arbitrarily weight these forces
 	sep *= s;
-//	ali *= a;
-//	coh *= c;
+	//ali *= a;
+	//coh *= c;
 	
-	acc += sep; // + ali + coh; 
+	acc += sep; // + ali + coh;
 }
 
 
 // Separation
 // Method checks for nearby boids and steers away
 ofVec2f Boid::separate(vector<Boid> &boids) {
-   // float desiredseparation = 75.0f;
+    
+    float desiredseparation = 75.0f;
+    
+    //float desiredseparation = ;
+    
     ofVec2f steer;
     int count = 0;
 	

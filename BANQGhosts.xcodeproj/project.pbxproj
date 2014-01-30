@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7D5256F11898476B00E816E3 /* Boid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D5256ED1898476B00E816E3 /* Boid.cpp */; };
-		7D5256F21898476B00E816E3 /* ofxFlocking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */; };
 		7D525716189853E500E816E3 /* osc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D52570A189853E500E816E3 /* osc.a */; };
 		7D525717189853E600E816E3 /* ofxOscBundle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D52570E189853E500E816E3 /* ofxOscBundle.cpp */; };
 		7D525718189853E600E816E3 /* ofxOscMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D525710189853E500E816E3 /* ofxOscMessage.cpp */; };
 		7D525719189853E600E816E3 /* ofxOscReceiver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D525712189853E500E816E3 /* ofxOscReceiver.cpp */; };
 		7D52571A189853E600E816E3 /* ofxOscSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D525714189853E500E816E3 /* ofxOscSender.cpp */; };
+		7D5580CF189AE0E900A7FBA1 /* ofxFlocking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D5580CE189AE0E900A7FBA1 /* ofxFlocking.cpp */; };
+		7D5580D3189AE14E00A7FBA1 /* Boid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D5580D2189AE14E00A7FBA1 /* Boid.cpp */; };
 		7D85AB7718980A5B00A01B02 /* Syphon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D85AB7618980A5B00A01B02 /* Syphon.framework */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		CB04590216437AE800296F4A /* SyphonNameboundClient.m in Sources */ = {isa = PBXBuildFile; fileRef = CB0458F816437AE800296F4A /* SyphonNameboundClient.m */; };
@@ -36,7 +36,6 @@
 		CBBC4221165EC0CB005CA3D7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBBC421A165EC0CB005CA3D7 /* main.cpp */; };
 		CBBC4222165EC0CB005CA3D7 /* Path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBBC421B165EC0CB005CA3D7 /* Path.cpp */; };
 		CBBC4224165EC0CB005CA3D7 /* testApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBBC421F165EC0CB005CA3D7 /* testApp.cpp */; };
-		CBBC42F5165ED7E2005CA3D7 /* Sequence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBBC42F3165ED7E2005CA3D7 /* Sequence.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
 		E45BE97C0E8CC7DD009D7055 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */; };
@@ -95,10 +94,6 @@
 
 /* Begin PBXFileReference section */
 		7D5256EB1898410C00E816E3 /* BANQGhostsDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BANQGhostsDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7D5256ED1898476B00E816E3 /* Boid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Boid.cpp; path = ../../../../addons/ofxFlockingBANQ/Boid.cpp; sourceTree = "<group>"; };
-		7D5256EE1898476B00E816E3 /* Boid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Boid.h; path = ../../../../addons/ofxFlockingBANQ/Boid.h; sourceTree = "<group>"; };
-		7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxFlocking.cpp; path = ../../../../addons/ofxFlockingBANQ/ofxFlocking.cpp; sourceTree = "<group>"; };
-		7D5256F01898476B00E816E3 /* ofxFlocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxFlocking.h; path = ../../../../addons/ofxFlockingBANQ/ofxFlocking.h; sourceTree = "<group>"; };
 		7D5256F5189853E500E816E3 /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = install.xml; sourceTree = "<group>"; };
 		7D5256FA189853E500E816E3 /* IpEndpointName.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IpEndpointName.h; sourceTree = "<group>"; };
 		7D5256FB189853E500E816E3 /* NetworkingUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkingUtils.h; sourceTree = "<group>"; };
@@ -124,6 +119,10 @@
 		7D525713189853E500E816E3 /* ofxOscReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxOscReceiver.h; sourceTree = "<group>"; };
 		7D525714189853E500E816E3 /* ofxOscSender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOscSender.cpp; sourceTree = "<group>"; };
 		7D525715189853E500E816E3 /* ofxOscSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxOscSender.h; sourceTree = "<group>"; };
+		7D5580CD189AE0B200A7FBA1 /* Boid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Boid.h; sourceTree = "<group>"; };
+		7D5580CE189AE0E900A7FBA1 /* ofxFlocking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxFlocking.cpp; sourceTree = "<group>"; };
+		7D5580D1189AE13800A7FBA1 /* ofxFlocking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxFlocking.h; sourceTree = "<group>"; };
+		7D5580D2189AE14E00A7FBA1 /* Boid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Boid.cpp; sourceTree = "<group>"; };
 		7D85AB7618980A5B00A01B02 /* Syphon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Syphon.framework; path = ../../../addons/ofxSyphon/libs/Syphon/lib/osx/Syphon.framework; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		CB0458F316437AE800296F4A /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = install.xml; path = ../../../addons/ofxSyphon/install.xml; sourceTree = SOURCE_ROOT; };
@@ -268,8 +267,6 @@
 		CBBC421C165EC0CB005CA3D7 /* Path.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Path.h; path = src/Path.h; sourceTree = SOURCE_ROOT; };
 		CBBC421F165EC0CB005CA3D7 /* testApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = testApp.cpp; path = src/testApp.cpp; sourceTree = SOURCE_ROOT; };
 		CBBC4220165EC0CB005CA3D7 /* testApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = testApp.h; path = src/testApp.h; sourceTree = SOURCE_ROOT; };
-		CBBC42F3165ED7E2005CA3D7 /* Sequence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sequence.cpp; path = src/Sequence.cpp; sourceTree = SOURCE_ROOT; };
-		CBBC42F4165ED7E2005CA3D7 /* Sequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sequence.h; path = src/Sequence.h; sourceTree = SOURCE_ROOT; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
 		E45BE9720E8CC7DD009D7055 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -971,12 +968,10 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				7D5256ED1898476B00E816E3 /* Boid.cpp */,
-				7D5256EE1898476B00E816E3 /* Boid.h */,
-				7D5256EF1898476B00E816E3 /* ofxFlocking.cpp */,
-				7D5256F01898476B00E816E3 /* ofxFlocking.h */,
-				CBBC42F3165ED7E2005CA3D7 /* Sequence.cpp */,
-				CBBC42F4165ED7E2005CA3D7 /* Sequence.h */,
+				7D5580D2189AE14E00A7FBA1 /* Boid.cpp */,
+				7D5580CD189AE0B200A7FBA1 /* Boid.h */,
+				7D5580D1189AE13800A7FBA1 /* ofxFlocking.h */,
+				7D5580CE189AE0E900A7FBA1 /* ofxFlocking.cpp */,
 				CBBC421B165EC0CB005CA3D7 /* Path.cpp */,
 				CBBC421C165EC0CB005CA3D7 /* Path.h */,
 				CBBC421A165EC0CB005CA3D7 /* main.cpp */,
@@ -1097,13 +1092,12 @@
 				CBBC4221165EC0CB005CA3D7 /* main.cpp in Sources */,
 				CBBC4222165EC0CB005CA3D7 /* Path.cpp in Sources */,
 				CBBC4224165EC0CB005CA3D7 /* testApp.cpp in Sources */,
-				CBBC42F5165ED7E2005CA3D7 /* Sequence.cpp in Sources */,
-				7D5256F11898476B00E816E3 /* Boid.cpp in Sources */,
-				7D5256F21898476B00E816E3 /* ofxFlocking.cpp in Sources */,
 				7D525717189853E600E816E3 /* ofxOscBundle.cpp in Sources */,
 				7D525718189853E600E816E3 /* ofxOscMessage.cpp in Sources */,
 				7D525719189853E600E816E3 /* ofxOscReceiver.cpp in Sources */,
 				7D52571A189853E600E816E3 /* ofxOscSender.cpp in Sources */,
+				7D5580CF189AE0E900A7FBA1 /* ofxFlocking.cpp in Sources */,
+				7D5580D3189AE14E00A7FBA1 /* Boid.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1197,12 +1191,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					../../../addons/ofxFTGL/src,
-					../../../addons/ofxFTGL/libs/FTGL/lib/osx,
-					../../../addons/ofxFTGL/libs/FTGL/lib,
-					../../../addons/ofxFTGL/libs/FTGL/include,
-					../../../addons/ofxFTGL/libs/FTGL,
-					../../../addons/ofxFTGL/libs,
 					"$(OF_CORE_HEADERS)",
 					"$(OF_PATH)/addons/ofxOpenCv/src",
 					"$(OF_PATH)/addons/ofxOpenCv/libs/opencv/include",
@@ -1326,12 +1314,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				HEADER_SEARCH_PATHS = (
-					../../../addons/ofxFTGL/src,
-					../../../addons/ofxFTGL/libs/FTGL/lib/osx,
-					../../../addons/ofxFTGL/libs/FTGL/lib,
-					../../../addons/ofxFTGL/libs/FTGL/include,
-					../../../addons/ofxFTGL/libs/FTGL,
-					../../../addons/ofxFTGL/libs,
 					"$(OF_CORE_HEADERS)",
 					"$(OF_PATH)/addons/ofxOpenCv/src",
 					"$(OF_PATH)/addons/ofxOpenCv/libs/opencv/include",

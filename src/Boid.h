@@ -25,8 +25,7 @@ public:
     void seek(ofVec2f target);
     void avoid(ofVec2f target);
     void arrive(ofVec2f target);
-	void updateValues( float separation, float alignement, float cohesion, float maxforce,
-					  float maxspeed, float desiredseparation, float neighbordist);
+	void updateValues(float separation, float maxforce, float maxspeed, float seekforce);
 	void push(float ms);
 	void flock(vector<Boid> &boids);
 	

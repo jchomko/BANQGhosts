@@ -15,9 +15,14 @@
 class Path{
 public:
 	Path();
-	
+	void addPath(ofPolyline p);
+    void clear();
+    
 	ofPolyline points;
     vector <ofPolyline> polylines;
+    vector <ofPoint> startPoints;
+    vector <ofPoint> endPoints;
+    
 	float radius;
 	
 	void addPoint(float x, float y);

@@ -17,11 +17,24 @@ Path::Path()
 void Path::addPoint(float x, float y){
 
 	ofPoint p;
+    
 	p.set(x,y);
 	
 	points.addVertex(p);
 	
 	
+}
+
+void Path::addPath(ofPolyline p){
+    
+    vector <ofPoint> verts =  p.getVertices();
+    
+    startPoints.push_back(verts[0]);
+    endPoints.push_back(verts[verts.size()-1]);
+    
+    polylines.push_back(p);
+    
+
 }
 
 void Path::display(){
@@ -33,6 +46,14 @@ void Path::display(){
 	points.draw();
 	
 	ofPopMatrix();
+}
+
+void Path::clear(){
+    
+    polylines.clear();
+    startPoints.clear();
+    endPoints.clear();
+
 }
 
 

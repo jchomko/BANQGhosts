@@ -36,19 +36,24 @@ void testApp::setup(){
     
 	editGui->addWidgetDown(new ofxUILabel("EDIT MODE", OFX_UI_FONT_LARGE)); 
 	editGui->addSpacer(length, 2); 
+    
+    
+	editGui->addWidgetDown(new ofxUILabel("BOID CONTROL", OFX_UI_FONT_MEDIUM));
+	editGui->addMinimalSlider("SEPARATION", 0, 1, setSeparation, 95, dim);
+    //editGui->addMinimalSlider("DESIRED SEPARATION", 0, 200, setDesiredSeparation, 95, dim);
+	//editGui->addMinimalSlider("COHESION", 0, 10, setCohesion, 95, dim);
+	editGui->addMinimalSlider("MAXFORCE", 0, 1, setForce, 95, dim);
+    editGui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
+	//editGui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
+	editGui->addMinimalSlider("LINE FOLLOW", 0, 200, lineFollowMult, 95, dim);
+  
+    
     ddl = new ofxUIDropDownList(100, "PATHS", dropdownNames, OFX_UI_FONT_MEDIUM);
 	ddl->setAutoClose(true);
     ddl->setAllowMultiple(false);
-   
+    
     editGui->addWidgetDown(ddl);
     
-	editGui->addWidgetDown(new ofxUILabel("BOID CONTROL", OFX_UI_FONT_MEDIUM));
-	editGui->addMinimalSlider("SEPARATION", 0, 50, setSeparation, 95, dim);
-	editGui->addMinimalSlider("COHESION", 0, 10, setCohesion, 95, dim);
-	editGui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
-	editGui->addMinimalSlider("MAXFORCE", 0, 1, setForce, 95, dim);
-    editGui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
-	editGui->addMinimalSlider("LINE FOLLOW", 0, 200, lineFollowMult, 95, dim);
     
     //gui->addWidgetDown(new ofxUILabel("VIDEO SETTINGS", OFX_UI_FONT_MEDIUM));
 	//gui->addMinimalSlider("VIDEO SCALE", 0, 640, scale, 95, dim);
@@ -116,23 +121,23 @@ void testApp::setup(){
 	
 	// Recording
 	
-    nrDisplaySequences = 12;
+    nrDisplaySequences = NUM_SEQUENCES;
 	bufferSize = NUM_SEQUENCES;
-   
-	cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
+   cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
 	cutoutPixels = new unsigned char[camWidth*camHeight*4];
 	record = 0;
 	index = 0;  
-	
 	videoPos = 0;
 	videoVel = 0;
-	
 	endRecordSequence = false;
 	endRecordSequenceTime = 0;
-	
 	bufferFull = false;
     bufferFullDuringShow = false;
-  	
+  	numberFbo.allocate(camWidth, camHeight);
+    numberFont.loadFont("verdana.ttf", 120);
+    numberPixels.allocate(camWidth, camHeight, OF_PIXELS_BGRA);
+    
+    
 	//Playback
 	play = 0;
 	playbackIndex = 0;
@@ -179,7 +184,13 @@ void testApp::setup(){
                     
                     }
                     cout << " PL.size: " << pl.size() << endl;
-                    paths[p]->polylines.push_back(pl);
+                    
+                    paths[p]->addPath(pl);
+                    
+//                    vector <ofPoint> verts =  pl.getVertices();
+//                    paths[p]->startPoints.push_back(verts[0]);
+//                    paths[p]->endPoints.push_back(verts[verts.size()-1]);
+//                    paths[p]->polylines.push_back(pl);
                 }
             
                 pathsXML.popTag();
@@ -218,6 +229,15 @@ void testApp::setup(){
 	showBoids = false;
 	removeLastBoid = false;
     
+    numberFbo.begin();
+    ofPushStyle();
+    ofClear(255, 100, 100,120);
+    ofSetColor(0);
+    numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
+    ofPopStyle();
+    numberFbo.end();
+    numberFbo.readToPixels(numberPixels);
+
 }
 
 
@@ -276,7 +296,7 @@ void testApp::update(){
     ofVec2f predict(0,0);
     ofPoint closestPoint(0,0);
     ofVec2f goal(0,0);
-    
+    int polyIndex = 0;
 	//Update Boids
     for  (int i = 0; i < nrDisplaySequences; i ++){
         
@@ -284,10 +304,11 @@ void testApp::update(){
         
         //TODO update values in Update(), only if something's changed
         
-        flock.boids[i].updateValues(setSeparation,setAlignment,setCohesion,
-                                    setForce*0.001,setMaxSpeed,setDesiredSeparation, lineFollowMult);
+        flock.boids[i].updateValues(setSeparation, setForce, setMaxSpeed, lineFollowMult); //setDesiredSeparation,
         
         flock.boids[i].update(flock.boids);
+        
+        //Find the closest line
         
         shortest = 1000000;
         
@@ -297,27 +318,45 @@ void testApp::update(){
 
             closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
             
+           
+            
             float d = predict.distance(closestPoint);
             
             if(d < shortest){
                 
+                polyIndex = p;
                 shortest = d;
                 goal = closestPoint;
                 
             }
+            
+           
         }
+  
+        if(paths[pathIndex]->endPoints.size() > 0){
+            
+            if(goal.distance(paths[pathIndex]->endPoints[polyIndex]) < 10){
+                
+                flock.boids[i].setLoc(paths[pathIndex]->startPoints[polyIndex]);
+                
+            }
+        }
+
         flock.boids[i].scale = closestPoint.z;
         flock.boids[i].seek(goal);
-        
-	}
+       
+    }
     
     if(oscReceiver.hasWaitingMessages()){
         
         ofxOscMessage om;
+        
         if( oscReceiver.getNextMessage(&om)){
+        
          //cout << om.getAddress();
          // get address and then do something with that value
          // we'll just parse out the column numbe or something
+            
         }
     }
     
@@ -377,7 +416,6 @@ void testApp::updateVideo(){
         //Blurring the threshold image before using it as a cutout softens edges
         cvThresh.blur();
        
-		
 		//Removing Background
 		unsigned char * colorPix = cvColor.getPixels();
 		unsigned char * grayPix = cvThresh.getPixels();
@@ -421,8 +459,12 @@ void testApp::updateVideo(){
 			//Accessing the pixels directly was the quickest method I could find
 		    //bufferSequences[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
             //bufferSequences[showBoidsHead%bufferSize].flaps[index] = mappedFlap;
-            
+           
+            if(cvImgDisp){
+            flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
+            }else{
             flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
+            }
             index ++;
 			
 			//Size of a Sequence is hard-coded here and in Sequence.h
@@ -432,16 +474,33 @@ void testApp::updateVideo(){
 				index = 0;
 				record = 0;
 				
+                //Put that boid offscreen at start of pa
+                //TODO fix bug
+                if(paths[pathIndex]->startPoints.size() > 0){
+                ofVec2f startPoint = paths[pathIndex]->startPoints[0];
+                
+                flock.boids[showBoidsHead%bufferSize].setLoc(startPoint);
+				}else{
+                 flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofGetWidth()/2, ofGetHeight()/2));
+                }
 				
 				//Increment display int
 				showBoidsHead ++;
 				
-				//Put that boid offscreen
-                flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofRandom(100, 400),ofRandom(100,2*ofGetHeight()/3)));
 				
 				//Start end record sequence
 				endRecordSequence = true;
 				endRecordSequenceTime = ofGetElapsedTimeMillis();
+                
+                numberFbo.begin();
+                ofPushStyle();
+                ofClear(255, 100, 100,120);
+                ofSetColor(0);
+                numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
+                ofPopStyle();
+                numberFbo.end();
+                numberFbo.readToPixels(numberPixels);
+
 								
 			}
 			
@@ -528,9 +587,12 @@ void testApp::draw(){
 	if(mode == 1){
     
         ofPushStyle();
-        ofSetColor(0, 0, 244);
+        ofSetColor(128, 100);
         ofNoFill();
         //Draw Temp Line
+        
+        tempPl.draw();
+        
         vector<ofPoint> pth = tempPl.getVertices();
         
         for (int p = 0; p < pth.size(); p++ ) {
@@ -540,19 +602,46 @@ void testApp::draw(){
         }
         
         //Draw Saved Lines
+        
         for (int i = 0; i < paths[pathIndex]->polylines.size(); i ++) {
+            
+            paths[pathIndex]->polylines[i].draw();
+            
             vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
             
             for (int p = 0; p < pth.size(); p++ ) {
                 
-                ofEllipse(pth[p].x, pth[p].y, pth[p].z, pth[p].z);
+                float z = pth[p].z;
+               
+                
+                ofEllipse(pth[p].x, pth[p].y , z, z);
             
             }
+            
+           
+            ofPushStyle();
+            ofSetColor(255, 0, 0);
+            ofEllipse(paths[pathIndex]->endPoints[i], 40, 40);
+            ofPopStyle();
+            
+            ofPushStyle();
+            ofSetColor(0, 255, 0);
+            ofEllipse(paths[pathIndex]->startPoints[i], 40, 40);
+            ofPopStyle();
 //            paths[pathIndex]->polylines[i].draw();
         
         }
         
+        
+//        ofVec2f startPoint = paths[pathIndex]->startPoints[0];
+//        ofPushStyle();
+//        ofSetColor(0);
+//        ofFill();
+//        ofEllipse(startPoint, 40, 40);
+//        ofPopStyle();
+        
         ofPopStyle();
+        
         
     }
     
@@ -633,9 +722,9 @@ void testApp::drawBoids(){
            
               //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
                 //if opacity == 0
-                 // then showBoidsTail ++;
+                  showBoidsTail ++;
 				//Stop removing the last boid
-                // removeLastBoid = false;
+                  removeLastBoid = false;
                 
             }
 		}
@@ -720,6 +809,12 @@ void testApp::guiEvent(ofxUIEventArgs &e){
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
 		setSeparation = slider -> getScaledValue();
 	}
+    else if( name == "DESIRED SEPARATION"){
+		
+		ofxUISlider *slider = (ofxUISlider *) e.widget;
+		setDesiredSeparation = slider -> getScaledValue();
+	}
+
 	else if( name == "COHESION"){
 		
 		ofxUISlider *slider = (ofxUISlider *) e.widget;
@@ -838,10 +933,12 @@ void testApp::drawCVImages()
 	camHeight = camHeight/2;
 	
 	vidGrabber.draw(100,  100, camWidth, camHeight);
-	cvColor.draw(100+camWidth, 100, camWidth, camHeight);
-	cvGray.draw(100, 100+camHeight, camWidth, camHeight);
-	cvBackground.draw(100+camWidth, 100+camHeight, camWidth, camHeight);
-	cvThresh.draw(100, 100+camHeight*2, camWidth, camHeight);
+    numberFbo.draw(100+camWidth, 100, camWidth, camHeight);
+    
+	//cvColor.draw(100+camWidth, 100, camWidth, camHeight);
+	//cvGray.draw(100, 100+camHeight, camWidth, camHeight);
+	//cvBackground.draw(100+camWidth, 100+camHeight, camWidth, camHeight);
+	//cvThresh.draw(100, 100+camHeight*2, camWidth, camHeight);
 	
 	camWidth = camWidth*2;
 	camHeight = camHeight*2;
@@ -921,7 +1018,7 @@ void testApp::keyPressed  (int key){
             pathsXML.clearTagContents("PATH", pathIndex);
             pathsXML.pushTag("PATH", pathIndex);
             pathsXML.saveFile("paths.xml");
-            paths[pathIndex]->polylines.clear();
+            paths[pathIndex]->clear();
             
         }
 	}
@@ -1010,6 +1107,29 @@ void testApp::keyPressed  (int key){
         }
     
     }
+    
+    if(key == 'z'){
+        for (int i = 0; i < NUM_SEQUENCES; i ++) {
+            
+            showBoidsHead = i;
+            numberFbo.begin();
+            ofPushStyle();
+            ofClear(255, 100, 100,120);
+            ofSetColor(0);
+            numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
+            ofPopStyle();
+            numberFbo.end();
+            numberFbo.readToPixels(numberPixels);
+            
+            
+            for(int f  = 0; f < 100; f++){
+           
+                flock.boids[showBoidsHead%bufferSize].pixels[f].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
+            
+            }
+        }
+    
+    }
 	
 
 	
@@ -1067,12 +1187,15 @@ void testApp::mousePressed(int x, int y, int button){
 void testApp::mouseReleased(int x, int y, int button){
     
     if (tempPl.size() > 0) {
-    
-        paths[pathIndex]->polylines.push_back(tempPl);
+        
+        paths[pathIndex]->addPath(tempPl);
+        
+        //paths[pathIndex]->polylines.push_back(tempPl);
+        
         tempPl.clear();
         
     }
-    pathsXML.saveFile("paths.xml");
+     //pathsXML.saveFile("paths.xml");
 }
 
 //--------------------------------------------------------------
@@ -1084,7 +1207,7 @@ void testApp::exit(){
 	
     showXML.setValue("PATH_INDEX", pathIndex);
     showXML.saveFile("show.xml");
-    
+   
     pathsXML.saveFile("paths.xml");
 	recordGui->saveSettings("GUI/recordSettings.xml");
     editGui->saveSettings("GUI/editSettings.xml");

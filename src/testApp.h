@@ -8,8 +8,7 @@
 #include "ofxSyphon.h"
 #include "ofxUI.h"
 #include "ofxFlocking.h"
-#include "Boid.h"
-#include "Sequence.h"
+
 #include "Path.h"
 #include "ofxOsc.h"
 
@@ -18,6 +17,7 @@
 #define NUM_PATHS 40
 #define MIN_VIDEO_SIZE 40
 #define NUM_SEQUENCES 24
+
 
 
 
@@ -76,7 +76,6 @@ public:
 	//Video 
 	int 				camWidth;
 	int 				camHeight;
-	
 	ofVideoGrabber 		vidGrabber;
 	ofVideoPlayer		video;
 	
@@ -99,8 +98,7 @@ public:
 	
 	
 	//Recording
-   
-	Sequence bufferSequences[24];
+
 	float endSpeed;
 	float videoPos;
 	float videoVel;
@@ -120,6 +118,9 @@ public:
 	bool endRecordSequence;
     bool bufferFull;
 	bool bufferFullDuringShow;
+    ofFbo numberFbo;
+    ofTrueTypeFont numberFont;
+    ofPixels numberPixels;
     
 	    
 
