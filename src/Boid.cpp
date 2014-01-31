@@ -11,10 +11,7 @@
 #include "Boid.h"
 
 
-/// Add code: if exit is true and boid is offscreen, remove boid
-// also, add scale for each boid and use to check if offscreen
-// add slow sine curve for each boid, with random start, for when travelling? 
-// talk to emmanual about travelling
+
 
 
 Boid::Boid() {
@@ -35,7 +32,7 @@ Boid::Boid() {
 	a = 0;
 	c = 0;
 	angle = 0;
-	scale = 0;
+	
 	xNoise = 0;
 	yNoise = 0;
 	zNoise = 0;
@@ -57,7 +54,7 @@ Boid::Boid(int x, int y) {
 	vel.set(0.1,0);
 	acc.set(0,0);
 	
-    r = 160.0;
+    r = 3.0;
 	
 	maxspeed = 0.61;
 	maxforce = 0.93;
@@ -96,10 +93,11 @@ void Boid::drawVideo(int index){
     dispTex.loadData(pixels[index]);
 	//1.779 is the ratio of the camera used at Joliette 2012/2013
 	//This should change if a new camera is used
-	dispTex.setAnchorPoint((scale*1.779)/2, scale/3);
+	
+    dispTex.setAnchorPoint((videoScale*1.779)/2, videoScale/3);
 	
 	//Draw Image
-	dispTex.draw(0, 0,scale *1.779, scale);
+	dispTex.draw(0, 0,videoScale *1.779, videoScale);
     
 	//Return the flap value
 	//return(flaps[index]);
@@ -195,7 +193,6 @@ void Boid::update(vector<Boid> &boids) {
 
 
 void Boid::seek(ofVec2f target) {
-
     acc += neighbordist*steer(target, false);
 }
 
@@ -257,10 +254,10 @@ ofVec3f Boid::addNoise(){
 }
 
 ofVec2f Boid::getPredictLoc(){
-	ofVec2f p(predict);
     
-	p *= 75; // * 175
- 	p += loc;
+	ofVec2f p(predict);
+    p *= 40;
+    p += loc;
 	return p;
 
 }
@@ -285,11 +282,11 @@ ofVec3f Boid::getLoc(){
 	
 	
 	
-	l.x = loc.x + noise.x*50;
-	l.y = loc.y + noise.y*50;
+	l.x = loc.x; // + noise.x*50;
+	l.y = loc.y; // + noise.y*50;
 	l.z = heading2D;
     
-	l += pushLoc;
+	//l += pushLoc;
 	
 	return l;
 	
@@ -297,7 +294,8 @@ ofVec3f Boid::getLoc(){
 }
 void Boid::draw() {
     // Draw a triangle rotated in the direction of velocity
-	 angle = (float)atan2(-vel.y, vel.x);
+    
+    angle = (float)atan2(-vel.y, vel.x);
     float theta =  -1.0*angle;
 	float heading2D = ofRadToDeg(theta)+90;
 	
@@ -315,6 +313,8 @@ void Boid::draw() {
 	ofPopStyle();
 
 }
+
+
 
 void Boid::flock(vector<Boid> &boids) {
     

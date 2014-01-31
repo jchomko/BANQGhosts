@@ -11,6 +11,7 @@
 Path::Path()
 {
     rot = 0;
+   
     
 }
 
@@ -18,9 +19,7 @@ Path::Path()
 void Path::addPoint(float x, float y){
 
 	ofPoint p;
-    
-	p.set(x,y);
-	
+    p.set(x,y);
 	points.addVertex(p);
 	
 	

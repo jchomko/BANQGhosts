@@ -15,7 +15,7 @@
 
 #define NUM_FRAMES 100
 #define NUM_PATHS 40
-#define MIN_VIDEO_SIZE 40
+#define MIN_VIDEO_SIZE 10
 #define NUM_SEQUENCES 24
 
 
@@ -38,6 +38,7 @@ public:
 	void drawCVImages();
     void drawBoids();
     void drawMonitor();
+   
 	
 	void keyPressed(int key);
 	void keyReleased(int key);

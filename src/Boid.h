@@ -20,6 +20,7 @@ public:
 	
 	void update(vector<Boid> &boids);
 	void draw();
+    void drawDebug();
     
 	
     void seek(ofVec2f target);
@@ -50,15 +51,13 @@ public:
 	ofVec2f pushLoc;
 	
 	float psh;
-	
 	vector <ofVec2f> avgVel;
-	
 	ofVec3f addNoise();
 
 	
 	float p;
 	int hold;
-	float scale;
+	//float scale;
 	float xNoise;
 	float yNoise;
 	float zNoise;
@@ -79,6 +78,8 @@ public:
 	float desiredseparation;
 		
 	float angle;
+    
+    float videoScale;
     
     float rot;
     

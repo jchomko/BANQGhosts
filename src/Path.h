@@ -23,6 +23,8 @@ public:
     vector <ofPoint> startPoints;
     vector <ofPoint> endPoints;
     
+    ofImage background;
+    
 	float radius;
 	float rot;
     
