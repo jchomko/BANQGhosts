@@ -14,11 +14,12 @@
 
 class ofxFlocking {
 public:
-	void update(int hold);
+	void update();
 	void draw();
 	void addBoid();
 	void addBoid(int x, int y);
-	void killAll();
+	
+    void follow(Path path);
 	
 	vector<Boid> boids;
 };

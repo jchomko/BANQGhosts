@@ -29,7 +29,8 @@ public:
 	void updateValues(float separation, float maxforce, float maxspeed, float seekforce);
 	void push(float ms);
 	void flock(vector<Boid> &boids);
-	
+	void follow(Path path, int i);
+    
 	// setLoc Bug
 	void setLoc(ofVec2f p);
 	

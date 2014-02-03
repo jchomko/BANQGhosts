@@ -17,6 +17,10 @@ public:
 	Path();
 	void addPath(ofPolyline p);
     void clear();
+    ofPoint getNextPoint();
+    ofPoint getNearestPoint(ofPoint _t);
+    int lastNearestIndex;
+    int lastLastNearestIndex;
     
 	ofPolyline points;
     vector <ofPolyline> polylines;
@@ -27,8 +31,8 @@ public:
     
 	float radius;
 	float rot;
-    
-	void addPoint(float x, float y);
+    int pointIndex;
+    void addPoint(float x, float y);
 	void display();
 	
 private:

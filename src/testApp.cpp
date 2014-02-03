@@ -18,6 +18,8 @@ void testApp::setup(){
     mClient.setApplicationName("Simple Server");
     mClient.setServerName("");
     backgroundServer.setName("Background");
+    spanServer.setName("Span");
+    
 	backgroundTex.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);
 	
     
@@ -123,7 +125,7 @@ void testApp::setup(){
 	
     nrDisplaySequences = NUM_SEQUENCES;
 	bufferSize = NUM_SEQUENCES;
-   cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
+    cutoutTex.allocate(camWidth,camHeight,GL_RGBA);
 	cutoutPixels = new unsigned char[camWidth*camHeight*4];
 	record = 0;
 	index = 0;  
@@ -137,6 +139,10 @@ void testApp::setup(){
     numberFont.loadFont("verdana.ttf", 120);
     numberPixels.allocate(camWidth, camHeight, OF_PIXELS_BGRA);
     
+    spanWidth = 1280 * 4;
+    spanHeight = 1042;
+    fourScreenSpan.allocate(spanWidth, spanHeight);
+    spanTex.allocate(spanWidth,spanHeight, GL_RGBA);
     
 	//Playback
 	play = 0;
@@ -232,6 +238,8 @@ void testApp::setup(){
 		flock.addBoid(ofRandom(100, 500),ofRandom(100,2*ofGetHeight()/3));
 	}
     
+    flock.follow(* paths[pathIndex]);
+    
 	showBoidsHead = 0;
 	showBoidsTail = 0;
 	showBoids = false;
@@ -245,13 +253,30 @@ void testApp::setup(){
     ofPopStyle();
     numberFbo.end();
     numberFbo.readToPixels(numberPixels);
-
+    
+    
 }
 
 
 //--------------------------------------------------------------
 void testApp::update(){
 	 
+    fourScreenSpan.begin();
+    ofPushStyle();
+    
+    ofClear(0, 120, 0);
+    
+    ofSetColor(255, 0, 0);
+    for (int i = 0 ; i <spanWidth/40; i ++) {
+        ofEllipse(i*40, spanHeight/2, 40, 40);
+    }
+    
+    ofPopStyle();
+    fourScreenSpan.end();
+    
+    spanTex = fourScreenSpan.getTextureReference();
+    
+    spanServer.publishTexture(&spanTex);
     
     //Show management
 	if (showState > 1) {  // Check at beginning of update because multiple functions use this
@@ -301,8 +326,8 @@ void testApp::update(){
     
     
     float shortest = 1000000;
-    ofVec2f predict(0,0);
-    ofPoint closestPoint(0,0);
+   
+   
     ofVec3f currentPoint;
     ofVec2f goal(0,0);
     int polyIndex = 0;
@@ -315,57 +340,63 @@ void testApp::update(){
         
         //Loop i around the size of the buffer using modulo
         int i = j % bufferSize;
-  
+        
     	//TODO update values in Update(), only if something's changed
+        
         
         flock.boids[i].updateValues(setSeparation, setForce, setMaxSpeed, lineFollowMult); //setDesiredSeparation,
         
         flock.boids[i].update(flock.boids);
         
         //Find the closest line
-        shortest = 1000000;
+        //shortest = 1000000;
         
         predict = flock.boids[i].getPredictLoc();
         
         if( paths[pathIndex]->polylines.size() > 0){
         
-          for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+//          for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+//            
+//           closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+//             
+//           //   closestPoint = paths[pathIndex]->getNearestPoint(predict);
+//            // closestPoint = paths[pathIndex]->getNearestPoint(predict);
+//                          
+//            float d = predict.distance(closestPoint);
+//            
+//            if(d < shortest){
+//                polyIndex = p;
+//                shortest = d;
+//                goal = closestPoint;
+//            }
+//            
+//            //Check if at end
+//              if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[p]) < 140 ){
+//                flock.boids[i].setLoc(paths[pathIndex]->startPoints[p]);
+//              }
+//            
+//                          
+//                  flock.boids[i].rot = paths[pathIndex]->rot;
+//                  flock.boids[i].videoScale = closestPoint.z;
+//                  closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+//                  flock.boids[i].seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
+//               
+//              
+//          }
             
-            closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+            if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[0]) < 140 ){
+                
+                flock.boids[i].follow(*paths[pathIndex], i);
             
-                          
-            float d = predict.distance(closestPoint);
-            
-            if(d < shortest){
-                polyIndex = p;
-                shortest = d;
-                goal = closestPoint;
             }
             
-            //Check if at end
-              if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[p]) < 140 ){
-                flock.boids[i].setLoc(paths[pathIndex]->startPoints[p]);
-            }
+            flock.boids[i].rot = paths[pathIndex]->rot;
             
-             // if(abs(closestPoint.z-flock.boids[i].videoScale) < 20){
-                  flock.boids[i].rot = paths[pathIndex]->rot;
-                  flock.boids[i].videoScale = closestPoint.z;
-                  //flock.boids[i].seek(goal);
-                  
-                  flock.boids[i].seek(closestPoint);
-                  
-             // }
-          }
-        
+            closestPoint = paths[pathIndex]->polylines[0].getClosestPoint(predict);
+            
+            flock.boids[i].videoScale = closestPoint.z;
+            flock.boids[i].seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
         }
-//        else if(paths[pathIndex]->polylines.size() > 0){
-//
-//            closestPoint = paths[pathIndex]->polylines[0].getClosestPoint(predict);
-//            flock.boids[i].seek(closestPoint);
-//            flock.boids[i].scale = closestPoint.z;
-//            flock.boids[i].rot = paths[pathIndex]->rot;
-//
-//        }
         
     }
     
@@ -442,7 +473,8 @@ void testApp::updateVideo(){
         contourFinder.findContours(cvThresh, lowBlob, highBlob, 1, true, true);
 		
         //Blurring the threshold image before using it as a cutout softens edges
-        cvThresh.blur();
+        //cvThresh.blur();
+        //cvThresh.blurHeavily();
        
 		//Removing Background
 		unsigned char * colorPix = cvColor.getPixels();
@@ -453,7 +485,7 @@ void testApp::updateVideo(){
 		for(int i = 0; i < (camWidth*camHeight); i++){
 			
 			//If pixel has content
-			if(grayPix[i] > 1){ 
+			if(grayPix[i] > 128){
 				
 				cutoutPixels[(i*4)+0] = colorPix[(i*3)+0];
 				cutoutPixels[(i*4)+1] = colorPix[(i*3)+1];
@@ -461,7 +493,7 @@ void testApp::updateVideo(){
 				cutoutPixels[(i*4)+3] = 255;
             
             //If no content, set pixel to be translucent
-			}else if(grayPix[i]  < 1){
+			}else if(grayPix[i]  < 128){
 					
 					cutoutPixels[(i*4)+0] =	0;
 					cutoutPixels[(i*4)+1] = 0;
@@ -502,21 +534,14 @@ void testApp::updateVideo(){
 				index = 0;
 				record = 0;
 				
-                //Put that boid offscreen at start of pa
-                //TODO fix bug
-                if(paths[pathIndex]->startPoints.size() > 0){
-                ofVec2f startPoint = paths[pathIndex]->startPoints[0];
+                //Put that boid offscreen at start of path
                 
-                flock.boids[showBoidsHead%bufferSize].setLoc(startPoint);
-				}else{
-                 flock.boids[showBoidsHead%bufferSize].setLoc(ofVec2f(ofGetWidth()/2, ofGetHeight()/2));
-                }
+                flock.boids[showBoidsHead%bufferSize].follow( *paths[pathIndex], 0);
 				
-				//Increment display int
+                //Increment display int
 				showBoidsHead ++;
 				
-				
-				//Start end record sequence
+                //Start end record sequence
 				endRecordSequence = true;
 				endRecordSequenceTime = ofGetElapsedTimeMillis();
                 
@@ -645,8 +670,6 @@ void testApp::draw(){
             for (int p = 0; p < pth.size(); p++ ) {
                 
                 float z = pth[p].z;
-               
-                
                 ofEllipse(pth[p].x, pth[p].y , z, z);
             
             }
@@ -727,26 +750,20 @@ void testApp::drawBoids(){
             
        
         flock.boids[i].drawVideo(playbackIndex);
-       
             
-          
             
+            //Debug stuff
             if( paths[pathIndex]->polylines.size() > 0 && cvImgDisp){
                 
                 //  for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
                 flock.boids[i].draw();
-            
-           
+                
                 ofPushStyle();
                 ofSetColor(255, 0, 0);
-                
-                ofEllipse(paths[pathIndex]->polylines[0].getClosestPoint(flock.boids[i].getPredictLoc()), 10, 10);
-                
+                ofEllipse(closestPoint, 10, 10);
                 ofSetColor(0, 255, 0);
-                ofEllipse(flock.boids[i].getPredictLoc(), 10, 10);
-                
-                ofLine(flock.boids[i].getPredictLoc(), paths[pathIndex]->polylines[0].getClosestPoint(flock.boids[i].getPredictLoc()));
-                
+                ofEllipse(predict, 10, 10);
+                ofLine(predict, closestPoint);
                 ofPopStyle();
             
             }
@@ -929,12 +946,19 @@ void testApp::guiEvent(ofxUIEventArgs &e){
         in -= 6;
         
         cout << "pathIndex: " << in << "rawIndex: " << selected[i]->getID() << endl;
-        pathIndex = in;
+        
+        if(pathIndex != in){
+          pathIndex = in;
+          flock.follow(*paths[pathIndex]);
+
+        }
+        
         pathsXML.popTag();
         
         if (!pathsXML.tagExists("PATH", pathIndex)) {
             pathsXML.addTag("PATH");
         }
+        
         pathsXML.pushTag("PATH", pathIndex);
         
         //check if xml tag exists.
@@ -1005,9 +1029,9 @@ void testApp::drawCVImages()
 	ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
 	
-	ofSetColor(255, 0,0);
-	ofLine(ofGetWidth()-100, 0, ofGetWidth()-100, ofGetHeight());
-    pth.display();
+//	ofSetColor(255, 0,0);
+//	ofLine(ofGetWidth()-100, 0, ofGetWidth()-100, ofGetHeight());
+//    pth.display();
 	
 }
 
@@ -1123,9 +1147,12 @@ void testApp::keyPressed  (int key){
             }
             pathsXML.pushTag("PATH", pathIndex);
             showState = 1;
+            cvImgDisp = true;
             editGui->toggleVisible();
         }
         if(mode == 2){
+            
+            cvImgDisp = false;
             pathsXML.popTag();
             editGui->toggleVisible();
             recordGui->toggleVisible();
@@ -1163,20 +1190,15 @@ void testApp::keyPressed  (int key){
             
             }
         }
+        
+        flock.follow(* paths[pathIndex]);
     
     }
 	
     if(key == 'b'){
         
-        for( int i = 0; i < NUM_SEQUENCES; i ++){
-            
-            if(paths[pathIndex]->startPoints.size()>0){
-           
-                flock.boids[i].setLoc(paths[pathIndex]->startPoints[0]);
-            
-            }
-        }
-    
+      
+               
     }
 	
 	
@@ -1203,11 +1225,11 @@ void testApp::mouseDragged(int x, int y, int button){
 	if(button == 2){
 	
 		//This mapping allows for offscreen drawing, which enables removing of the boids
-		int mx = (int)ofMap(x,0, ofGetWidth(),-300,  ofGetWidth()+300);
-		int my = (int)ofMap(y,0, ofGetHeight(),   0, ofGetHeight());
+		//int mx = (int)ofMap(x,0, ofGetWidth(),-300,  ofGetWidth()+300);
+		//int my = (int)ofMap(y,0, ofGetHeight(),   0, ofGetHeight());
 		
 		//pth.addPoint(mx, my);
-		tempPl.addVertex(mx,my, pathZ);
+		tempPl.addVertex(x, y, pathZ);
 
 	if(pathsXML.pushTag("STROKE", lastTagNumber)){
         int tagNum = pathsXML.addTag("PT");
@@ -1234,7 +1256,7 @@ void testApp::mouseReleased(int x, int y, int button){
     
     if (tempPl.size() > 0) {
         
-       // tempPl.simplify(3);
+        tempPl.simplify(3);
         
         paths[pathIndex]->addPath(tempPl);
         paths[pathIndex]->rot = boidRotation;

@@ -9,7 +9,7 @@
 
 #include "ofxFlocking.h"
 
-void ofxFlocking::update(int h) {
+void ofxFlocking::update() {
 	
 	for(int i=0; i<boids.size(); i++) {
 		boids[i].update(boids);
@@ -33,7 +33,16 @@ void ofxFlocking::addBoid(int x, int y) {
 	boids.push_back(Boid(x,y));
 }
 
-void ofxFlocking::killAll(){
-	boids.clear();
-
+//Include number of boids? 
+void ofxFlocking::follow(Path path){
+    
+  
+    
+    for(int i=0; i<boids.size(); i++) {
+		
+        boids[i].follow(path, i);
+		
+	}
+    
+    
 }

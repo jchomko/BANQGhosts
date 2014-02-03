@@ -156,14 +156,17 @@ void Boid::update(vector<Boid> &boids) {
 	predict.set(vel);
 	predict.normalize();
     
-	
+    //Adjust for perspective
+	maxspeed = maxspeed + videoScale*0.05;
 	addNoise();
 	
     avgVel.push_back(vel);
 	
 	if(avgVel.size()> 20){
+        
 		avgVel.erase(avgVel.begin());
-	}
+	
+    }
 	
 	for(int i = 0; i < avgVel.size(); i ++){
 		avg += avgVel[i];
@@ -179,14 +182,14 @@ void Boid::update(vector<Boid> &boids) {
     loc += vel;
     
     acc = 0;  // Reset accelertion to 0 each cycle
-		
-        /*
-         if (loc.x <  - r -100) loc.x = (ofGetWidth())+r +100  ;
-         if (loc.y < - r  ) loc.y =	 (ofGetHeight())+r +100 ;
-         
-         if (loc.x > ((ofGetWidth()))+r+100) loc.x = -r-100 ;
-         if (loc.y > (ofGetHeight())+r+100) loc.y =  -r ;
-         */
+    
+    
+//         if (loc.x <  - r -100) loc.x = (ofGetWidth())+r +100  ;
+//         if (loc.y < - r  ) loc.y =	 (ofGetHeight())+r +100 ;
+//         
+//         if (loc.x > ((ofGetWidth()))+r+100) loc.x = -r-100 ;
+//         if (loc.y > (ofGetHeight())+r+100) loc.y =  -r ;
+    
 
 	
 }
@@ -234,9 +237,8 @@ ofVec2f Boid::steer(ofVec2f target, bool slowdown) {
 		steer.x = ofClamp(steer.x, -maxSteerForce, maxSteerForce); // Limit to maximum steering force
 		steer.y = ofClamp(steer.y, -maxSteerForce, maxSteerForce); 
 		
-		
-		
-    }
+	}
+    
     return steer;
 }
 
@@ -256,7 +258,7 @@ ofVec3f Boid::addNoise(){
 ofVec2f Boid::getPredictLoc(){
     
 	ofVec2f p(predict);
-    p *= 40;
+    p *= videoScale;
     p += loc;
 	return p;
 
@@ -319,23 +321,42 @@ void Boid::draw() {
 void Boid::flock(vector<Boid> &boids) {
     
 	ofVec2f sep = separate(boids);
-	//ofVec2f ali = align(boids);
-	//ofVec2f coh = cohesion(boids);
+	ofVec2f ali = align(boids);
+	ofVec2f coh = cohesion(boids);
 	
 	// Arbitrarily weight these forces
 	sep *= s;
-	//ali *= a;
-	//coh *= c;
+ 	ali *= 1.0; //a
+	coh *= 1.0;//c
 	
-	acc += sep; // + ali + coh;
+	acc += sep; //+ ali + coh;
 }
 
+
+void Boid::follow(Path path, int i){
+
+    ofVec3f startVel;
+    
+    if(path.startPoints.size() > 0){
+         
+       
+    
+        startVel = path.polylines[0].getVertices()[1] - path.polylines[0].getVertices()[0];
+        
+        startVel.normalize();
+        
+        loc.set(path.startPoints[0] - startVel * i * 300);
+        
+        vel.set(startVel);
+    }
+
+}
 
 // Separation
 // Method checks for nearby boids and steers away
 ofVec2f Boid::separate(vector<Boid> &boids) {
     
-    float desiredseparation = 75.0f;
+    float desiredseparation = videoScale*1.7;
     
     //float desiredseparation = ;
     
@@ -352,7 +373,7 @@ ofVec2f Boid::separate(vector<Boid> &boids) {
 		if ((d > 0) && (d < desiredseparation)) {
 			// Calculate vector pointing away from neighbor
 			ofVec2f diff = loc - other.loc;
-			diff /= d;			// normalize
+			diff.normalize();			// normalize
 			diff /= d;        // Weight by distance
 			steer += diff;
 			count++;            // Keep track of how many
@@ -414,6 +435,7 @@ ofVec2f Boid::align(vector<Boid> &boids) {
 // Cohesion
 // For the average location (i.e. center) of all nearby boids, calculate steering vector towards that location
 ofVec2f Boid::cohesion(vector<Boid> &boids) {
+    
    // float neighbordist = 50.0;
     ofVec2f sum;   // Start with empty vector to accumulate all locations
     int count = 0;

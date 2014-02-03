@@ -53,7 +53,7 @@ public:
 	ofTexture backgroundTex; 
 	ofTexture foregroundTex;	
 	ofTexture textTex;
-	
+	ofxSyphonServer spanServer;
 	ofxSyphonServer backgroundServer;
 	//ofxSyphonServer textServer;
 	
@@ -126,7 +126,12 @@ public:
 	    
 
 	//Playback
-	int showBoidsHead;
+    int spanWidth;
+    int spanHeight;
+    ofFbo fourScreenSpan;
+    ofTexture spanTex;
+    
+    int showBoidsHead;
 	int showBoidsTail;
 	bool showBoids;
 	bool removeLastBoid;
@@ -158,7 +163,9 @@ public:
     float pathZ;
     bool pathZoom;
     float boidRotation;
-	
+    ofPoint closestPoint;
+     ofVec2f predict;
+    
 	//Settings
 	string message;
 	//string xmlStructure;

@@ -11,7 +11,7 @@
 Path::Path()
 {
     rot = 0;
-   
+    lastNearestIndex = 0;
     
 }
 
@@ -53,7 +53,51 @@ void Path::clear(){
     polylines.clear();
     startPoints.clear();
     endPoints.clear();
+    lastNearestIndex = 0;
+    lastLastNearestIndex = 0;
+}
 
+ofPoint Path::getNextPoint(){
+    
+    pointIndex ++;
+    
+    if (pointIndex > polylines[0].getVertices().size()) {
+        
+        pointIndex = 0;
+        
+    }
+    
+    return polylines[0].getVertices()[pointIndex];
+    
+}
+
+
+
+ofPoint Path::getNearestPoint(ofPoint target){
+    
+    vector<ofPoint> verts = polylines[0].getVertices();
+    float minDist = 100000;
+    ofPoint nearest;
+    
+    
+    for (int i = lastNearestIndex; i < verts.size(); i ++) {
+        
+        float dist = target.distance(verts[i]);
+        
+        if(dist < minDist ){
+            
+            lastNearestIndex = i;
+            nearest = verts[i];
+            minDist = dist;
+        
+        }
+        
+    }
+    
+   
+       
+    return nearest;
+    
 }
 
 
