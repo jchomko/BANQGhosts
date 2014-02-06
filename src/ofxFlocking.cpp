@@ -29,8 +29,8 @@ void ofxFlocking::addBoid() {
 	boids.push_back(Boid());
 }
 
-void ofxFlocking::addBoid(int x, int y) {
-	boids.push_back(Boid(x,y));
+void ofxFlocking::addBoid(int x, int y, int nf) {
+	boids.push_back(Boid(x,y,nf));
 }
 
 //Include number of boids? 

@@ -16,7 +16,7 @@
 class Boid {
 public:
 	Boid();
-	Boid(int x, int y);
+	Boid(int x, int y, int _nf);
 	
 	void update(vector<Boid> &boids);
 	void draw();
@@ -85,9 +85,10 @@ public:
     float rot;
     
     //Sequence Variables
-    
+    int num_frames;
     void drawVideo(int index);
-	ofPixels pixels[100];
+	//ofPixels * pixels;
+    ofTexture * pixels;
     ofTexture dispTex;
     
 };

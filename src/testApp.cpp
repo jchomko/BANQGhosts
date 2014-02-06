@@ -9,6 +9,14 @@ void testApp::setup(){
 	ofEnableAlphaBlending();  
 	ofSetFrameRate(30);
     
+    
+    // Show Management
+    showXML.loadFile("show.xml");
+    pathIndex = showXML.getValue("PATH_INDEX", 0);
+	
+    cout << "pathIndex: " << pathIndex << endl;
+    showState = 0;
+    
 	//ofSetDataPathRoot("../Resources/data/");
 	//ofSetDataPathRoot("./data/");
 	//if we need to package up program
@@ -17,11 +25,23 @@ void testApp::setup(){
 	mClient.setup();
     mClient.setApplicationName("Simple Server");
     mClient.setServerName("");
-    backgroundServer.setName("Background");
+    //backgroundServer.setName("Background");
     spanServer.setName("Span");
     
-	backgroundTex.allocate(ofGetWidth(), ofGetHeight(),GL_RGBA);
-	
+    backgroundTex.allocate(ofGetWidth(),ofGetHeight(), GL_RGBA);
+    
+    for(int i = 0; i < NUM_SERVERS; i ++){
+        servers[i].setName("Boids " + ofToString(i));
+    }
+//
+//    for(int i = 0; i < NUM_SERVERS; i ++){
+//        
+//        spanTextures[i].allocate(1280, 1024, GL_RGBA);
+//    
+//    }
+
+   
+    
     
     //UI
 	drawFill = true;
@@ -83,17 +103,34 @@ void testApp::setup(){
 	
 	//OSC
     oscReceiver.setup(8212);
-		
+	
+	//Kinect
+    
+   
+    kinThread.kinect.init();
+    kinThread.kinect.setVerbose(true);
+    kinThread.kinect.open();
+    kinThread.kinect.setCameraTiltAngle(0);
+    kinThread.kinect.setUseTexture(false);
+    
+    kinThread.colorPix.allocate(640, 360, OF_PIXELS_RGB);
+    kinThread.depthPix.allocate(640, 360, OF_PIXELS_MONO);
+    kinThread.initAndSleep();
+    
+    
+    // kinThreadRunning = false;
+    testImage.allocate(640, 360, OF_IMAGE_COLOR);
+
 	
 	//Video
 	camWidth 	= 640; 
-	camHeight 	= 360; 
+	camHeight 	= 360;
 	
-	vidGrabber.setVerbose(true);
-	vidGrabber.listDevices();
+	//vidGrabber.setVerbose(true);
+	//vidGrabber.listDevices();
 	
-	vidGrabber.setDeviceID(10);  
-	vidGrabber.initGrabber(camWidth,camHeight,true);
+	//vidGrabber.setDeviceID(10);
+	//vidGrabber.initGrabber(camWidth,camHeight,true);
     
 	camWidthScale = ofGetWidth();
 	camHeightScale = camWidthScale *0.562; //should give proportions of 16:9
@@ -105,13 +142,11 @@ void testApp::setup(){
 	
     highBlob = 9999999;
 	lowBlob = 100;
-	
 	diffMode  = 0;
 	flap	  = 0;
     mappedFlap = 0;
     
-	
-	cvColor.allocate(camWidth,camHeight);
+    cvColor.allocate(camWidth,camHeight);
 	cvGray.allocate(camWidth,camHeight);
 	cvBackground.allocate(camWidth,camHeight);
 	cvThresh.allocate(camWidth,camHeight);
@@ -139,11 +174,14 @@ void testApp::setup(){
     numberFont.loadFont("verdana.ttf", 120);
     numberPixels.allocate(camWidth, camHeight, OF_PIXELS_BGRA);
     
-    spanWidth = 1280 * 4;
-    spanHeight = 1042;
+    spanWidth = 1280*4; //
+    spanHeight = 960;
     fourScreenSpan.allocate(spanWidth, spanHeight);
     spanTex.allocate(spanWidth,spanHeight, GL_RGBA);
     
+    spanPixels.allocate(spanWidth, spanHeight, 4);
+    
+	
 	//Playback
 	play = 0;
 	playbackIndex = 0;
@@ -167,54 +205,54 @@ void testApp::setup(){
     
     }
     
-    
-    pathsXML.loadFile("paths.xml");
-    
-    int availPaths = pathsXML.getNumTags("PATH");
-    cout << "availPaths: " << availPaths << endl;
    
+    if( pathsXML.loadFile("paths.xml") ) {
+   
+    int availPaths = pathsXML.getNumTags("PATH");
     
-    for (int p = 0; p < availPaths; p ++) {
+        cout << "availPaths: " << availPaths << endl;
         
-        pathsXML.pushTag("PATH", p);
-        
-        for (int s = 0; s < pathsXML.getNumTags("STROKE"); s ++) {
+        for (int p = 0; p < availPaths; p ++) {
             
+            pathsXML.pushTag("PATH", p);
+            
+            for (int s = 0; s < pathsXML.getNumTags("STROKE"); s ++) {
+                
                 pathsXML.pushTag("STROKE",s);
-            
+                
                 ofPolyline pl;
-            
+                
                 if( pathsXML.getNumTags("PT") > 0){
                     
                     for(int i = 0; i < pathsXML.getNumTags("PT"); i++){
-                    
+                        
                         int x = pathsXML.getValue("PT:X", 0, i);
                         int y = pathsXML.getValue("PT:Y", 0, i);
                         int z = pathsXML.getValue("PT:Z", 0, i);
-                    
+                        
                         pl.addVertex(x, y, z);
-                    
+                        
                     }
                     cout << " PL.size: " << pl.size() << endl;
                     
                     paths[p]->addPath(pl);
-
-//                    vector <ofPoint> verts =  pl.getVertices();
-//                    paths[p]->startPoints.push_back(verts[0]);
-//                    paths[p]->endPoints.push_back(verts[verts.size()-1]);
-//                    paths[p]->polylines.push_back(pl);
                     
                 }
-            
-            
+                
                 pathsXML.popTag();
                 paths[p]->rot = pathsXML.getValue("ROTATE", 0);
             }
             
             //this pops us out of the STROKE tag
             //sets the root back to the xml document
+            
+            pathsXML.popTag();
+        }
     
-        pathsXML.popTag();
+    }else{
+        pathsXML.addTag("PATH");
+        pathsXML.pushTag("PATH", pathIndex);
+    
     }
 	
     pathZ = MIN_VIDEO_SIZE;
@@ -223,19 +261,14 @@ void testApp::setup(){
 	cvImgDisp = false;
 
 	
-	// Show Management
-    showXML.loadFile("show.xml");
-    pathIndex = showXML.getValue("PATH_INDEX", 0);
-	
-    cout << "pathIndex: " << pathIndex << endl;
-    
-    showState = 0;
+
 	
 	
     
 	//Flock
 	for(int i = 0; i < NUM_SEQUENCES; i ++) {
-		flock.addBoid(ofRandom(100, 500),ofRandom(100,2*ofGetHeight()/3));
+		flock.addBoid(ofRandom(100, 500),ofRandom(100,2*ofGetHeight()/3), NUM_FRAMES);
+         flock.boids[i].updateValues(setSeparation, setForce, setMaxSpeed, lineFollowMult); //setDesiredSeparation,
 	}
     
     flock.follow(* paths[pathIndex]);
@@ -254,30 +287,58 @@ void testApp::setup(){
     numberFbo.end();
     numberFbo.readToPixels(numberPixels);
     
-    
+       
 }
 
 
 //--------------------------------------------------------------
 void testApp::update(){
 	 
+    kinThread.updateOnce();
+    
+    //Temp here for TESTing - woudd n
+    if(playbackIndex == NUM_FRAMES-1){
+        playbackIndex = 0;
+    }else {
+        playbackIndex++;
+    }
+
+    //Draw test image to FBO
     fourScreenSpan.begin();
     ofPushStyle();
     
-    ofClear(0, 120, 0);
+    ofClear(0, 0, 200);
     
     ofSetColor(255, 0, 0);
+    
+    
+    
     for (int i = 0 ; i <spanWidth/40; i ++) {
-        ofEllipse(i*40, spanHeight/2, 40, 40);
+        
+        testY+= 0.001;
+        
+        if(testY > ofGetHeight()){
+            testY = 0;
+        }
+        
+        //      int n = i/40/1024;
+        
+        ofEllipse(i*40, ofGetHeight()/2 + ( 200 * sin(testY + i)), 40, 40);
+        
     }
+    
     
     ofPopStyle();
     fourScreenSpan.end();
     
-    spanTex = fourScreenSpan.getTextureReference();
+    //fourScreenSpan.readToPixels(spanPixels);
     
-    spanServer.publishTexture(&spanTex);
+    //spanTex = fourScreenSpan.getTextureReference();
     
+    spanServer.publishTexture(&fourScreenSpan.getTextureReference());
+    
+
+   
     //Show management
 	if (showState > 1) {  // Check at beginning of update because multiple functions use this
 		showState = 0;
@@ -300,24 +361,11 @@ void testApp::update(){
 	
     }
 	
+    //Frame Management
+    
 	
 	updateVideo();
     
-    
-    //Frame Management
-    if(showBoids) {
-		
-		//Check for new frame and increase index if frame is new
-		if(vidGrabber.isFrameNew()){
-			// Dont go out of bounds
-			if(playbackIndex == 99){
-				playbackIndex = 0;
-			}else {
-				playbackIndex++;
-			}
-		}
-	}
-	
     
     //If the number of displayed boids is greater than the desired number
 	if ( showBoidsHead - showBoidsTail > nrDisplaySequences ){
@@ -328,9 +376,9 @@ void testApp::update(){
     float shortest = 1000000;
    
    
-    ofVec3f currentPoint;
-    ofVec2f goal(0,0);
-    int polyIndex = 0;
+//    ofVec3f currentPoint;
+//    ofVec2f goal(0,0);
+//    int polyIndex = 0;
     
     
 	//Update Boids
@@ -386,16 +434,18 @@ void testApp::update(){
             
             if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[0]) < 140 ){
                 
-                flock.boids[i].follow(*paths[pathIndex], i);
-            
+                flock.boids[i].follow(*paths[pathIndex], 0);
             }
+            
             
             flock.boids[i].rot = paths[pathIndex]->rot;
             
             closestPoint = paths[pathIndex]->polylines[0].getClosestPoint(predict);
             
             flock.boids[i].videoScale = closestPoint.z;
+            
             flock.boids[i].seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
+        
         }
         
     }
@@ -414,10 +464,11 @@ void testApp::update(){
 //        
         
          // get address and then do something with that value
-         // we'll just parse out the column numbe or something
-            
-//        }
+         // we'll just parse out the column numbe or something              
+         //        }
+   
     }
+    
     
     
     if(mode == 1){
@@ -436,14 +487,45 @@ void testApp::update(){
 
 void testApp::updateVideo(){
 		
-	
-	vidGrabber.update();	
-	
-    if (vidGrabber.isFrameNew()){
+    //vidGrabber.update();
+	//kinect.update();
+    
+    //if (vidGrabber.isFrameNew()){
+	//if(kinect.isFrameNew()){
+        
+              
+        if(showBoids) {
+            
+            //Check for new frame and increase index if frame is new
+            // Dont go out of bounds
+                if(playbackIndex == NUM_FRAMES-1){
+                    playbackIndex = 0;
+                }else {
+                    playbackIndex++;
+                }
+           
+        }
+        
+		cvColor.setFromPixels(kinThread.colorPix.getPixels(), camWidth,camHeight);
+        cvGray.setFromPixels(kinThread.depthPix.getPixels(), camWidth,camHeight);
+    
+        //kinThread.lock();
+    //kinThread.lock();
+        //testImage.setFromPixels(kinThread.kinectPix.getPixels(), 640, 360, OF_IMAGE_COLOR);
+    //kinThread.unlock();
+    
+        //cvColor.setFromPixels(kinThread.vidPix.getPixels(), camWidth,camHeight);// = kinThread.kinectColor;
+        //cvGray = kinThread.kinectDepth;
+    
+		//cvColor.setFromPixels(kinect.getCalibratedRGBPixels(), camWidth, camHeight);
 		
-		cvColor.setFromPixels(vidGrabber.getPixels(), camWidth, camHeight);
-		cvGray = cvColor;
-		
+        //cvGray.setFromPixels(kinect.getDepthPixels(), camWidth, camHeight);
+    
+       // kinThread.unlock();
+    
+        // cvGray = cvColor;
+		cvGray.blur();
+        
 		
 		//Grab background after ten frames
 		if (getBackground == true && ofGetFrameNum() > 10) {
@@ -467,33 +549,35 @@ void testApp::updateVideo(){
 		
 		cvThresh.threshold(threshold);
         
-		frameDiff.absDiff(cvGray, lastGray);
+        cvThresh.blur();
+        
+		//frameDiff.absDiff(cvGray, lastGray);
 		
         //For flapping - may not be necessary
-        contourFinder.findContours(cvThresh, lowBlob, highBlob, 1, true, true);
+        //contourFinder.findContours(cvThresh, lowBlob, highBlob, 1, true, true);
 		
         //Blurring the threshold image before using it as a cutout softens edges
         //cvThresh.blur();
         //cvThresh.blurHeavily();
-       
+        
 		//Removing Background
 		unsigned char * colorPix = cvColor.getPixels();
 		unsigned char * grayPix = cvThresh.getPixels();
-		unsigned char * frameDiffPix = frameDiff.getPixels();
+		//unsigned char * frameDiffPix = frameDiff.getPixels();
 		
 		
 		for(int i = 0; i < (camWidth*camHeight); i++){
 			
 			//If pixel has content
-			if(grayPix[i] > 128){
+			if(grayPix[i] > 20){
 				
 				cutoutPixels[(i*4)+0] = colorPix[(i*3)+0];
 				cutoutPixels[(i*4)+1] = colorPix[(i*3)+1];
 				cutoutPixels[(i*4)+2] = colorPix[(i*3)+2];
-				cutoutPixels[(i*4)+3] = 255;
+				cutoutPixels[(i*4)+3] = grayPix[i];
             
             //If no content, set pixel to be translucent
-			}else if(grayPix[i]  < 128){
+			}else if(grayPix[i]  < 20){
 					
 					cutoutPixels[(i*4)+0] =	0;
 					cutoutPixels[(i*4)+1] = 0;
@@ -516,19 +600,20 @@ void testApp::updateVideo(){
 		//Record a sequence
        if (record == 1 ) 
 		{
-			//Accessing the pixels directly was the quickest method I could find
-		    //bufferSequences[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
-            //bufferSequences[showBoidsHead%bufferSize].flaps[index] = mappedFlap;
-           
+			
+            //
             if(cvImgDisp){
-            flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
+                flock.boids[showBoidsHead%bufferSize].pixels[index].loadData(numberPixels.getPixels(), camWidth, camHeight, GL_RGBA);
+
+            //flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
             }else{
-            flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
+           // flock.boids[showBoidsHead%bufferSize].pixels[index].setFromPixels(cutoutPixels, camWidth, camHeight, 4);
+                flock.boids[showBoidsHead%bufferSize].pixels[index].loadData(cutoutPixels, camWidth, camHeight, GL_RGBA);
             }
             index ++;
 			
 			//Size of a Sequence is hard-coded here and in Sequence.h
-			if (index == 100) 
+			if (index == NUM_FRAMES)
 			{	
 				
 				index = 0;
@@ -547,23 +632,28 @@ void testApp::updateVideo(){
                 
                 numberFbo.begin();
                 ofPushStyle();
+                
                 ofClear(255, 100, 100,120);
+                
                 ofSetColor(0);
+                
                 numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
+                
                 ofPopStyle();
+               
                 numberFbo.end();
                 numberFbo.readToPixels(numberPixels);
 
 								
 			}
 			
-		}//End Record	
+		}//End Record
 		
 		//Load background subtracted image for displaying 
 		cutoutTex.loadData(cutoutPixels,camWidth,camHeight,GL_RGBA); 
         
 		
-	}//End of New Frame Check
+	//}//End of New Frame Check
 	
 	
 	//Automatic Recording 
@@ -627,6 +717,8 @@ void testApp::updateVideo(){
     //Draw Syphon client
     mClient.draw(50, 50);
 	
+    
+       
 }
 //--------------------------------------------------------------
 void testApp::draw(){
@@ -639,16 +731,21 @@ void testApp::draw(){
 	if(mode == 1 && cvImgDisp){
     
         ofPushStyle();
+        
         ofSetColor(128, 100);
+        
         ofNoFill();
         //Draw Temp Line
-        ofPushStyle();
+       
         ofSetColor(255, 255);
-        if(paths[pathIndex]->background.isAllocated()){
-            paths[pathIndex]->background.draw(0,0,ofGetWidth(), ofGetHeight());
-        }
-        ofPopStyle();
         
+        //Draw guide image
+        if(paths[pathIndex]->background.isAllocated()){
+        
+            paths[pathIndex]->background.draw(0,0,ofGetWidth(), ofGetHeight());
+        
+        }
+      
         tempPl.draw();
         
         vector<ofPoint> pth = tempPl.getVertices();
@@ -665,8 +762,8 @@ void testApp::draw(){
             
             paths[pathIndex]->polylines[i].draw();
             
-            vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
             
+            vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
             for (int p = 0; p < pth.size(); p++ ) {
                 
                 float z = pth[p].z;
@@ -725,7 +822,7 @@ void testApp::draw(){
 void testApp::drawBoids(){
 	
 	//Set background to be transparent
-	ofBackground(255, 255, 255, 0); 
+	ofBackground(0, 0, 0, 0);
 	
     //Color affects image tint, set to full opacity
 	ofSetColor(255, 255, 255,255);  
@@ -755,7 +852,8 @@ void testApp::drawBoids(){
             //Debug stuff
             if( paths[pathIndex]->polylines.size() > 0 && cvImgDisp){
                 
-                //  for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+                //for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+                
                 flock.boids[i].draw();
                 
                 ofPushStyle();
@@ -769,24 +867,29 @@ void testApp::drawBoids(){
             }
             
         //TODO change to opacity fade out
-        if(removeLastBoid ){
-           
-              //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
+        if(removeLastBoid ){ // && flock.boids[i].getLoc() > mappedWidth
+            
+                //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
                 //if opacity == 0
                   showBoidsTail ++;
 				//Stop removing the last boid
                   removeLastBoid = false;
+            
             }
-		}
+	
+        }
     
 	
     }
    
-	
 	//Load screen data
-	backgroundTex.loadScreenData(0, 0, ofGetWidth(),ofGetHeight());
-	//Publish screen data to syphon 
-	backgroundServer.publishTexture(&backgroundTex);
+//	backgroundTex.loadScreenData(0, 0, ofGetWidth(),ofGetHeight());
+//	//Publish screen data to syphon 
+//	//backgroundServer.publishTexture(&backgroundTex);
+//    
+//    for (int i  = 0;  i < NUM_SERVERS; i ++) {
+//        servers[i].publishTexture(&backgroundTex);
+//    }
 	
 	
 	
@@ -950,16 +1053,22 @@ void testApp::guiEvent(ofxUIEventArgs &e){
         if(pathIndex != in){
           pathIndex = in;
           flock.follow(*paths[pathIndex]);
-
-        }
-        
-        pathsXML.popTag();
-        
-        if (!pathsXML.tagExists("PATH", pathIndex)) {
+            cout << " path DROPDOWN called " << endl;
+            if(pathsXML.getPushLevel() > 0){
+                pathsXML.popTag();
+            }
+            
+            if (!pathsXML.tagExists("PATH", pathIndex)) {
             pathsXML.addTag("PATH");
+            }
+            
+            pathsXML.pushTag("PATH", pathIndex);
+
+
+            
         }
         
-        pathsXML.pushTag("PATH", pathIndex);
+              
         
         //check if xml tag exists.
         // if no, add xml tag here
@@ -991,7 +1100,10 @@ void testApp::drawCVImages()
 	camWidth  = camWidth/2;
 	camHeight = camHeight/2;
 	
-	vidGrabber.draw(100,  100, camWidth, camHeight);
+    //vidGrabber.draw(100,  100, camWidth, camHeight);
+	
+    cvColor.draw(100,  100, camWidth, camHeight); //CvImage
+    
     numberFbo.draw(100+camWidth, 100, camWidth, camHeight);
     
 	//cvColor.draw(100+camWidth, 100, camWidth, camHeight);
@@ -1020,14 +1132,15 @@ void testApp::drawCVImages()
 	
 	
 	info += "Record: " +ofToString(record) + "\n";
-	info += "Index: " + ofToString(index) + "\n";
+	info += "Index: " + ofToString(playbackIndex) + "\n";
     
+    info += "Framerate: " + ofToString(ofGetFrameRate()) + "\n";
     
 	
 	info += message +"\n";
 	
 	ofSetHexColor(0x444342);
-	ofDrawBitmapString(info, 30, 30);
+	ofDrawBitmapString(info, 30, 500);
 	
 //	ofSetColor(255, 0,0);
 //	ofLine(ofGetWidth()-100, 0, ofGetWidth()-100, ofGetHeight());
@@ -1142,10 +1255,15 @@ void testApp::keyPressed  (int key){
         }
         if(mode == 1){
             
-            if (!pathsXML.tagExists("PATH", pathIndex)) {
-                pathsXML.addTag("PATH");
+            if ( pathsXML.tagExists("PATH", pathIndex) == false) {
+            cout<< "pathIndex " <<  pathIndex << endl;
+            
+            pathsXML.addTag("PATH");
+                
             }
+            
             pathsXML.pushTag("PATH", pathIndex);
+            
             showState = 1;
             cvImgDisp = true;
             editGui->toggleVisible();
@@ -1171,36 +1289,19 @@ void testApp::keyPressed  (int key){
     }
     
     if(key == 'z'){
-        for (int i = 0; i < NUM_SEQUENCES; i ++) {
-            
-            showBoidsHead = i;
-            numberFbo.begin();
-            ofPushStyle();
-            ofClear(255, 100, 100,120);
-            ofSetColor(0);
-            numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
-            ofPopStyle();
-            numberFbo.end();
-            numberFbo.readToPixels(numberPixels);
-            
-            
-            for(int f  = 0; f < 100; f++){
-           
-                flock.boids[showBoidsHead%bufferSize].pixels[f].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
-            
-            }
-        }
         
-        flock.follow(* paths[pathIndex]);
-    
+        recordBlanks(); // = true;
     }
 	
-    if(key == 'b'){
-        
-      
-               
-    }
-	
+//    if(key == 'b'){
+//        
+//        kinThreadRunning = !kinThreadRunning;
+//        if(kinThreadRunning)
+//            kinThread.start();
+//    }else{
+//            kinThread.stop();
+//    }
+//	
 	
 	
 	 
@@ -1210,7 +1311,7 @@ void testApp::keyPressed  (int key){
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
 	pathZoom = false;
-    
+    pathsXML.saveFile("paths.xml");
 }
 
 //--------------------------------------------------------------
@@ -1227,8 +1328,8 @@ void testApp::mouseDragged(int x, int y, int button){
 		//This mapping allows for offscreen drawing, which enables removing of the boids
 		//int mx = (int)ofMap(x,0, ofGetWidth(),-300,  ofGetWidth()+300);
 		//int my = (int)ofMap(y,0, ofGetHeight(),   0, ofGetHeight());
-		
 		//pth.addPoint(mx, my);
+        
 		tempPl.addVertex(x, y, pathZ);
 
 	if(pathsXML.pushTag("STROKE", lastTagNumber)){
@@ -1246,8 +1347,9 @@ void testApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
 	
-    lastTagNumber = pathsXML.addTag("STROKE");
-    
+    if(button == 2){
+        lastTagNumber = pathsXML.addTag("STROKE");
+    }
 	
 }
 
@@ -1265,7 +1367,7 @@ void testApp::mouseReleased(int x, int y, int button){
         tempPl.clear();
         
     }
-     //pathsXML.saveFile("paths.xml");
+     pathsXML.saveFile("paths.xml");
 }
 
 //--------------------------------------------------------------
@@ -1273,9 +1375,65 @@ void testApp::windowResized(int w, int h){
 	
 }
 
+void testApp::recordBlanks(){
+    
+   
+        int numberX = 0;
+        int numberY = 0;
+        
+        for (int i = 0; i < NUM_SEQUENCES; i ++) {
+            
+            showBoidsHead = i;
+            numberX = 100;
+            numberY = 100;
+            
+            
+            for(int f  = 0; f < NUM_FRAMES; f++){
+                
+                numberFbo.begin();
+                
+                ofPushStyle();
+                
+                ofClear(255, 100, 100,120);
+                
+                ofSetColor(0);
+                
+                
+                if(numberX > camWidth){
+                    numberX = 0;
+                }
+                if(numberY > camHeight){
+                    numberY = 0;
+                }
+                numberX += 10;
+                numberY += 10;
+                
+                numberFont.drawString(ofToString(showBoidsHead), camWidth/2, camHeight/2);
+                
+                ofEllipse(numberX, numberY, 100, 100);
+                
+                ofPopStyle();
+                
+                numberFbo.end();
+                numberFbo.readToPixels(numberPixels);
+                
+                // flock.boids[showBoidsHead%bufferSize].pixels[f].setFromPixels(numberPixels.getPixels(), camWidth, camHeight, 4);
+                flock.boids[showBoidsHead%bufferSize].pixels[f].loadData(numberPixels.getPixels(), camWidth, camHeight, GL_RGBA);
+                
+            }
+        }
+        
+        flock.follow(* paths[pathIndex]);
+       
+    
+
+
+}
+
 void testApp::exit(){
 	
-   
+    kinThread.stop();
+    
     showXML.setValue("PATH_INDEX", pathIndex);
     showXML.saveFile("show.xml");
    

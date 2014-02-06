@@ -46,9 +46,10 @@ Boid::Boid() {
 	
 }
 
-Boid::Boid(int x, int y) {
+Boid::Boid(int x, int y, int nf) {
     loc.set(x,y);
-	
+	num_frames = nf;
+    
 	origin.set(x,y);
 	
 	vel.set(0.1,0);
@@ -67,8 +68,15 @@ Boid::Boid(int x, int y) {
 	yNoiseInc = ofRandom(0.001, 0.007);
 	zNoiseInc = ofRandom(0.001, 0.007);
     
+    //pixels = new ofPixels[num_frames];
+    
+    pixels = new ofTexture[num_frames];
+    
+    for(int i = 0; i < num_frames;  i ++){
+        pixels[i].allocate(640,480,GL_RGBA);
+    }
     //Sequence variables
-    dispTex.allocate(640,360,GL_RGBA);
+    //dispTex.allocate(640,360,GL_RGBA);
    
 	
 }
@@ -90,16 +98,21 @@ void Boid::drawVideo(int index){
     
     ofRotate(l.z+rot); //+90
     
-    dispTex.loadData(pixels[index]);
-	//1.779 is the ratio of the camera used at Joliette 2012/2013
+    //dispTex.loadData(pixels[index]);
+	
+    //1.779 is the ratio of the camera used at Joliette 2012/2013
 	//This should change if a new camera is used
 	
-    dispTex.setAnchorPoint((videoScale*1.779)/2, videoScale/3);
-	
-	//Draw Image
-	dispTex.draw(0, 0,videoScale *1.779, videoScale);
+    //dispTex.setAnchorPoint((videoScale*1.779)/2, videoScale/3);
     
-	//Return the flap value
+	pixels[index].setAnchorPoint((videoScale*1.779)/2, videoScale/3);
+	
+    //Draw Image
+	//dispTex.draw(0, 0,videoScale *1.779, videoScale);
+    
+    pixels[index].draw(0, 0,videoScale *1.779, videoScale);
+	
+    //Return the flap value
 	//return(flaps[index]);
     
     ofPopMatrix();

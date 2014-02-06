@@ -8,16 +8,17 @@
 #include "ofxSyphon.h"
 #include "ofxUI.h"
 #include "ofxFlocking.h"
-
-#include "Path.h"
+#include "ofxKinect.h"
 #include "ofxOsc.h"
+#include "Path.h"
+#include "kinectThread.h"
 
 
 #define NUM_FRAMES 100
-#define NUM_PATHS 40
+#define NUM_PATHS 20
 #define MIN_VIDEO_SIZE 10
 #define NUM_SEQUENCES 24
-
+#define NUM_SERVERS 4
 
 
 
@@ -35,10 +36,11 @@ public:
 	void exit();
 
 	void updateVideo();
-	void drawCVImages();
+	
+    void drawCVImages();
     void drawBoids();
     void drawMonitor();
-   
+    
 	
 	void keyPressed(int key);
 	void keyReleased(int key);
@@ -48,7 +50,8 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 	
-	
+	void recordBlanks();
+    
 	//Syphon
 	ofTexture backgroundTex; 
 	ofTexture foregroundTex;	
@@ -56,10 +59,13 @@ public:
 	ofxSyphonServer spanServer;
 	ofxSyphonServer backgroundServer;
 	//ofxSyphonServer textServer;
-	
+    ofxSyphonServer servers[NUM_SERVERS];
 	ofxSyphonClient mClient;
-	
-	
+	float testX, testY;
+	ofPixels spanPixels;
+    ofTexture spanTextures[NUM_SERVERS];
+    
+    
 	// UI 
 	ofxUICanvas *editGui;
     ofxUICanvas *recordGui;
@@ -73,16 +79,20 @@ public:
     ofxOscReceiver oscReceiver;
     
 	
-		
 	//Video 
 	int 				camWidth;
 	int 				camHeight;
 	ofVideoGrabber 		vidGrabber;
 	ofVideoPlayer		video;
 	
-	
-	//OpenCV
-	
+    
+    //Kinect
+    //ofxKinect           kinect;
+    
+	kinectThread        kinThread;
+	//bool                kinThreadRunning;
+    
+    //OpenCV
 	int	highBlob;
 	int	lowBlob;
 	int threshold;
@@ -99,7 +109,9 @@ public:
 	
 	
 	//Recording
-
+    
+   // void recordBlanks();
+   // bool recordBlanks;
 	float endSpeed;
 	float videoPos;
 	float videoVel;
@@ -130,7 +142,6 @@ public:
     int spanHeight;
     ofFbo fourScreenSpan;
     ofTexture spanTex;
-    
     int showBoidsHead;
 	int showBoidsTail;
 	bool showBoids;
@@ -191,7 +202,8 @@ public:
 	bool cvImgDisp;
 	int mode;
 	ofxXmlSettings showXML;
-
+    ofImage testImage;
+    
 		
 	
 };

@@ -17,7 +17,7 @@ public:
 	void update();
 	void draw();
 	void addBoid();
-	void addBoid(int x, int y);
+	void addBoid(int x, int y, int nf);
 	
     void follow(Path path);
 	

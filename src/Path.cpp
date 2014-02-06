@@ -57,19 +57,19 @@ void Path::clear(){
     lastLastNearestIndex = 0;
 }
 
-ofPoint Path::getNextPoint(){
-    
-    pointIndex ++;
-    
-    if (pointIndex > polylines[0].getVertices().size()) {
-        
-        pointIndex = 0;
-        
-    }
-    
-    return polylines[0].getVertices()[pointIndex];
-    
-}
+//ofPoint Path::getNextPoint(){
+//    
+//    pointIndex ++;
+//    
+//    if (pointIndex > polylines[0].getVertices().size()) {
+//        
+//        pointIndex = 0;
+//        
+//    }
+//    
+//    return polylines[0].getVertices()[pointIndex];
+//    
+//}
 
 
 
