@@ -26,6 +26,11 @@
 		7DB9430918A2C8A600020081 /* ofxKinectCalibration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DB942FC18A2C8A600020081 /* ofxKinectCalibration.cpp */; };
 		7DB9430A18A2C8A600020081 /* ofxKinectPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DB942FE18A2C8A600020081 /* ofxKinectPlayer.cpp */; };
 		7DB9430B18A2C8A600020081 /* ofxKinectRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DB9430018A2C8A600020081 /* ofxKinectRecorder.cpp */; };
+		7DE622A618AC0A2100BD1B1A /* ofxMidiIn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DE6229718AC0A2100BD1B1A /* ofxMidiIn.cpp */; };
+		7DE622A718AC0A2100BD1B1A /* ofxMidiMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DE6229918AC0A2100BD1B1A /* ofxMidiMessage.cpp */; };
+		7DE622A818AC0A2100BD1B1A /* ofxMidiOut.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DE6229B18AC0A2100BD1B1A /* ofxMidiOut.cpp */; };
+		7DE622A918AC0A2100BD1B1A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7DE622A118AC0A2100BD1B1A /* RtMidi.cpp */; };
+		7DE622AE18AC0A7F00BD1B1A /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DE622AD18AC0A7F00BD1B1A /* CoreMIDI.framework */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		CB04590216437AE800296F4A /* SyphonNameboundClient.m in Sources */ = {isa = PBXBuildFile; fileRef = CB0458F816437AE800296F4A /* SyphonNameboundClient.m */; };
 		CB04590316437AE800296F4A /* Syphon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0458FB16437AE800296F4A /* Syphon.framework */; };
@@ -193,6 +198,20 @@
 		7DB942FF18A2C8A600020081 /* ofxKinectPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxKinectPlayer.h; sourceTree = "<group>"; };
 		7DB9430018A2C8A600020081 /* ofxKinectRecorder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxKinectRecorder.cpp; sourceTree = "<group>"; };
 		7DB9430118A2C8A600020081 /* ofxKinectRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxKinectRecorder.h; sourceTree = "<group>"; };
+		7DE6229518AC0A2100BD1B1A /* ofxMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidi.h; sourceTree = "<group>"; };
+		7DE6229618AC0A2100BD1B1A /* ofxMidiConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidiConstants.h; sourceTree = "<group>"; };
+		7DE6229718AC0A2100BD1B1A /* ofxMidiIn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMidiIn.cpp; sourceTree = "<group>"; };
+		7DE6229818AC0A2100BD1B1A /* ofxMidiIn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidiIn.h; sourceTree = "<group>"; };
+		7DE6229918AC0A2100BD1B1A /* ofxMidiMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMidiMessage.cpp; sourceTree = "<group>"; };
+		7DE6229A18AC0A2100BD1B1A /* ofxMidiMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidiMessage.h; sourceTree = "<group>"; };
+		7DE6229B18AC0A2100BD1B1A /* ofxMidiOut.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMidiOut.cpp; sourceTree = "<group>"; };
+		7DE6229C18AC0A2100BD1B1A /* ofxMidiOut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidiOut.h; sourceTree = "<group>"; };
+		7DE6229D18AC0A2100BD1B1A /* ofxMidiTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMidiTypes.h; sourceTree = "<group>"; };
+		7DE6229F18AC0A2100BD1B1A /* readme */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme; sourceTree = "<group>"; };
+		7DE622A018AC0A2100BD1B1A /* RtError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtError.h; sourceTree = "<group>"; };
+		7DE622A118AC0A2100BD1B1A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RtMidi.cpp; sourceTree = "<group>"; };
+		7DE622A218AC0A2100BD1B1A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RtMidi.h; sourceTree = "<group>"; };
+		7DE622AD18AC0A7F00BD1B1A /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		CB0458F316437AE800296F4A /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = install.xml; path = ../../../addons/ofxSyphon/install.xml; sourceTree = SOURCE_ROOT; };
 		CB0458F716437AE800296F4A /* SyphonNameboundClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SyphonNameboundClient.h; path = ../../../addons/ofxSyphon/libs/Syphon/src/SyphonNameboundClient.h; sourceTree = SOURCE_ROOT; };
@@ -359,6 +378,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7DE622AE18AC0A7F00BD1B1A /* CoreMIDI.framework in Frameworks */,
 				E4EB6799138ADC1D00A09F29 /* GLUT.framework in Frameworks */,
 				E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */,
 				E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */,
@@ -803,9 +823,47 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		7DE6227818AC0A2100BD1B1A /* ofxMidi */ = {
+			isa = PBXGroup;
+			children = (
+				7DE6229418AC0A2100BD1B1A /* src */,
+			);
+			name = ofxMidi;
+			path = ../../../addons/ofxMidi;
+			sourceTree = "<group>";
+		};
+		7DE6229418AC0A2100BD1B1A /* src */ = {
+			isa = PBXGroup;
+			children = (
+				7DE6229518AC0A2100BD1B1A /* ofxMidi.h */,
+				7DE6229618AC0A2100BD1B1A /* ofxMidiConstants.h */,
+				7DE6229718AC0A2100BD1B1A /* ofxMidiIn.cpp */,
+				7DE6229818AC0A2100BD1B1A /* ofxMidiIn.h */,
+				7DE6229918AC0A2100BD1B1A /* ofxMidiMessage.cpp */,
+				7DE6229A18AC0A2100BD1B1A /* ofxMidiMessage.h */,
+				7DE6229B18AC0A2100BD1B1A /* ofxMidiOut.cpp */,
+				7DE6229C18AC0A2100BD1B1A /* ofxMidiOut.h */,
+				7DE6229D18AC0A2100BD1B1A /* ofxMidiTypes.h */,
+				7DE6229E18AC0A2100BD1B1A /* rtmidi */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		7DE6229E18AC0A2100BD1B1A /* rtmidi */ = {
+			isa = PBXGroup;
+			children = (
+				7DE6229F18AC0A2100BD1B1A /* readme */,
+				7DE622A018AC0A2100BD1B1A /* RtError.h */,
+				7DE622A118AC0A2100BD1B1A /* RtMidi.cpp */,
+				7DE622A218AC0A2100BD1B1A /* RtMidi.h */,
+			);
+			path = rtmidi;
+			sourceTree = "<group>";
+		};
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				7DE6227818AC0A2100BD1B1A /* ofxMidi */,
 				7D73E9CA18A447B10009A049 /* ofxRuiThread */,
 				7DB942AD18A2C8A600020081 /* ofxKinect */,
 				7D5256F4189853E500E816E3 /* ofxOsc */,
@@ -840,6 +898,7 @@
 		BBAB23CA13894EDB00AA2426 /* 3rd party frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7DE622AD18AC0A7F00BD1B1A /* CoreMIDI.framework */,
 				7D85AB7618980A5B00A01B02 /* Syphon.framework */,
 				BBAB23BE13894E4700AA2426 /* GLUT.framework */,
 			);
@@ -1503,6 +1562,10 @@
 				7DB9430A18A2C8A600020081 /* ofxKinectPlayer.cpp in Sources */,
 				7DB9430B18A2C8A600020081 /* ofxKinectRecorder.cpp in Sources */,
 				7D73E9D618A447B10009A049 /* ofxRuiThread.cpp in Sources */,
+				7DE622A618AC0A2100BD1B1A /* ofxMidiIn.cpp in Sources */,
+				7DE622A718AC0A2100BD1B1A /* ofxMidiMessage.cpp in Sources */,
+				7DE622A818AC0A2100BD1B1A /* ofxMidiOut.cpp in Sources */,
+				7DE622A918AC0A2100BD1B1A /* RtMidi.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

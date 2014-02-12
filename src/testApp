@@ -89,27 +89,8 @@ void testApp::setup(){
     editGui->toggleVisible();
 	
 	//OSC
-    //oscReceiver.setup(8212);
+    oscReceiver.setup(8212);
 	
-    //
-    // print input ports to console
-	midiIn.listPorts();
-	
-	// open port by number
-	midiIn.openPort(2);
-	//midiIn.openPort("IAC Pure Data In");	// by name
-	//midiIn.openVirtualPort("ofxMidiIn Input");	// open a virtual port
-	
-	// don't ignore sysex, timing, & active sense messages,
-	// these are ignored by default
-	midiIn.ignoreTypes(false, false, false);
-	
-	// add testApp as a listener
-	midiIn.addListener(this);
-	
-	// print received messages to the console
-	midiIn.setVerbose(true);
-    
 	//Kinect
     kinThread.kinect.init();
     kinThread.kinect.setVerbose(true);
@@ -127,6 +108,13 @@ void testApp::setup(){
 	camWidth 	= 640; 
 	camHeight 	= 360;
 	
+	//vidGrabber.setVerbose(true);
+	//vidGrabber.listDevices();
+	
+	//vidGrabber.setDeviceID(10);
+	//vidGrabber.initGrabber(camWidth,camHeight,true);
+    
+
 	
 	
 	// OpenCV
@@ -349,32 +337,32 @@ void testApp::update(){
     
     
     
-//    if(oscReceiver.hasWaitingMessages()){
-//        
-//        ofxOscMessage om;
-//       // ofxOscBundle ob;
-//        
-//        
-//       if( oscReceiver.getNextMessage(&om)){
-//            
-//            string s = om.getAddress();
-//            
-//            cout << "args : " << om.getAddress() << endl;
-//           
-//            //if(strstr(s,"jonathan")){
-//            
-//            if (s == "/activeclip/link3/linkmultiplier") {
-//                
-//                cout << "WE GOT ONE" << om.getAddress() <<  "value: " << om.getArgAsFloat(0) << endl;
-//                
-//            }
-//        
-//        
-//         // get address and then do something with that value
-//         // we'll just parse out the column numbe or something              
-//         }
-//   
-//    }
+    if(oscReceiver.hasWaitingMessages()){
+        
+        ofxOscMessage om;
+       // ofxOscBundle ob;
+        
+        
+        
+        if( oscReceiver.getNextMessage(&om)){
+            
+            string s = om.getAddress();
+            
+            cout << "args : " << om.getAddress() << " value: " << om.getArgAsFloat(0) << endl;
+           
+            
+            if (s == "/activeclip/link3/linkmultiplier") {
+                
+                cout << "WE GOT ONE" << om.getAddress() <<  "value: " << om.getArgAsFloat(0) << endl;
+                
+            }
+        
+        
+         // get address and then do something with that value
+         // we'll just parse out the column numbe or something              
+         }
+   
+    }
     
     
     
@@ -1277,20 +1265,20 @@ void testApp::mouseDragged(int x, int y, int button){
 	if(button == 2){
 	
 		//This mapping allows for offscreen drawing, which enables removing of the boids
-		int mx = (int)ofMap(x, PATH_RECT_IMAGE_PAD, ofGetWidth(), 0,  spanWidth + PATH_RECT_IMAGE_PAD);
-        int my = (int)ofMap(y, pathScaleRect.y,  pathScaleRect.y + pathScaleRect.height,  0, spanHeight );
-		tempPl.addVertex(mx, my, pathZ);
-
+		
+        int mx = (int)ofMap(x, PATH_RECT_IMAGE_PAD, ofGetWidth(), 0,  spanWidth + PATH_RECT_IMAGE_PAD);
         
-    if(pathsXML.pushTag("STROKE", lastTagNumber)){
-    
+		int my = (int)ofMap(y, pathScaleRect.y,  pathScaleRect.y + pathScaleRect.height,  0, spanHeight );
+		
+        tempPl.addVertex(mx, my, pathZ);
+
+	if(pathsXML.pushTag("STROKE", lastTagNumber)){
         int tagNum = pathsXML.addTag("PT");
         pathsXML.setValue("PT:X", mx, tagNum);
         pathsXML.setValue("PT:Y", my, tagNum);
         pathsXML.setValue("PT:Z", pathZ, tagNum);
         pathsXML.popTag();
-      
-        }
+      }
         
     }
 	
@@ -1381,16 +1369,6 @@ void testApp::recordBlanks(){
 
 
 }
-
-void testApp::newMidiMessage(ofxMidiMessage& msg) {
-    
-	// make a copy of the latest message
-	midiMessage = msg;
-    
-    cout << "MIDI pitch: " << msg.pitch << endl;
-    
-}
-
 
 void testApp::exit(){
 	

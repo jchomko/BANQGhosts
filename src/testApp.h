@@ -12,6 +12,8 @@
 #include "ofxOsc.h"
 #include "Path.h"
 #include "kinectThread.h"
+#include "ofxMidi.h"
+
 
 
 #define NUM_FRAMES 30
@@ -26,7 +28,7 @@
 
 
 
-class testApp : public ofBaseApp{
+class testApp : public ofBaseApp, public ofxMidiListener{
 	
 public:
 	
@@ -78,10 +80,15 @@ public:
 	
 	//OSC Communication
     ofxOscReceiver oscReceiver;
+    //Midi Input
     
+    ofxMidiIn	midiIn;
+	ofxMidiMessage midiMessage;
+    void newMidiMessage(ofxMidiMessage& eventArgs);
 	
-	//Video 
 	
+    
+    //Video
 	//ofVideoGrabber 		vidGrabber;
 	//ofVideoPlayer		video;
 	
