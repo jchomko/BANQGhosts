@@ -17,6 +17,8 @@ public:
 	Path();
 	void addPath(ofPolyline p);
     void clear();
+   
+    
     ofPoint getNextPoint();
     ofPoint getNearestPoint(ofPoint _t);
     int lastNearestIndex;

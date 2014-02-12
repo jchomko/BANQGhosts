@@ -18,7 +18,10 @@ public:
 	Boid();
 	Boid(int x, int y, int _nf);
 	
-	void update(vector<Boid> &boids);
+	void update(vector<Boid> &boids, Path * path);
+    
+    void seekPath(Path * path);
+    
 	void draw();
     void drawDebug();
     
@@ -29,11 +32,8 @@ public:
 	void updateValues(float separation, float maxforce, float maxspeed, float seekforce);
 	void push(float ms);
 	void flock(vector<Boid> &boids);
-	void follow(Path path, int i);
-    
-	// setLoc Bug
-	void setLoc(ofVec2f p);
-	
+	void follow(Path * path, int i);
+    void setLoc(ofVec2f p);
 	
 	ofVec2f getPredictLoc();
 	float getScale();
@@ -41,18 +41,19 @@ public:
 	ofVec3f getLoc();
 	ofVec2f steer(ofVec2f target, bool slowdown);	
 	ofVec2f separate(vector<Boid> &boids);
-	
 	ofVec2f align(vector<Boid> &boids);
 	ofVec2f cohesion(vector<Boid> &boids);
 	
-	ofVec2f loc,vel,acc;
-	
+	ofVec3f loc,vel,acc;
 	ofVec2f predict;
 	ofVec2f origin;
 	ofVec2f pushLoc;
 	
 	float psh;
-	vector <ofVec2f> avgVel;
+	vector <ofVec3f> avgVel;
+    vector<float> avgPerspective;
+    float perspectiveAvg;
+    
 	ofVec3f addNoise();
 
 	
@@ -66,7 +67,8 @@ public:
 	float yNoiseInc;
 	float zNoiseInc;
 	ofVec3f noise;
-	ofVec2f avg;
+	ofVec3f avg;
+    
     
 	float r;
 	float maxforce;
@@ -90,6 +92,11 @@ public:
 	//ofPixels * pixels;
     ofTexture * pixels;
     ofTexture dispTex;
+    
+    //Path
+    int pathFollowIndex;
+    
+    float lastZ;
     
 };
 

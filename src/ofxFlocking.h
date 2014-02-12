@@ -19,7 +19,7 @@ public:
 	void addBoid();
 	void addBoid(int x, int y, int nf);
 	
-    void follow(Path path);
+    void follow(Path * path);
 	
 	vector<Boid> boids;
 };

@@ -12,7 +12,7 @@
 void ofxFlocking::update() {
 	
 	for(int i=0; i<boids.size(); i++) {
-		boids[i].update(boids);
+		//boids[i].update(boids);
 		
 	}
 }
@@ -34,7 +34,7 @@ void ofxFlocking::addBoid(int x, int y, int nf) {
 }
 
 //Include number of boids? 
-void ofxFlocking::follow(Path path){
+void ofxFlocking::follow(Path * path){
     
   
     

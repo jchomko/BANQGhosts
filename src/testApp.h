@@ -14,11 +14,12 @@
 #include "kinectThread.h"
 
 
-#define NUM_FRAMES 100
+#define NUM_FRAMES 30
 #define NUM_PATHS 20
 #define MIN_VIDEO_SIZE 10
 #define NUM_SEQUENCES 24
 #define NUM_SERVERS 4
+#define PATH_RECT_IMAGE_PAD 100
 
 
 
@@ -80,17 +81,16 @@ public:
     
 	
 	//Video 
-	int 				camWidth;
-	int 				camHeight;
-	ofVideoGrabber 		vidGrabber;
-	ofVideoPlayer		video;
+	
+	//ofVideoGrabber 		vidGrabber;
+	//ofVideoPlayer		video;
 	
     
-    //Kinect
-    //ofxKinect           kinect;
-    
-	kinectThread        kinThread;
-	//bool                kinThreadRunning;
+    //Threaded Kinect
+    int 				camWidth;
+	int 				camHeight;
+    kinectThread        kinThread;
+	
     
     //OpenCV
 	int	highBlob;
@@ -110,9 +110,7 @@ public:
 	
 	//Recording
     
-   // void recordBlanks();
-   // bool recordBlanks;
-	float endSpeed;
+  	float endSpeed;
 	float videoPos;
 	float videoVel;
 	float videoGravity;
@@ -162,6 +160,8 @@ public:
 	float scaleMagnitude; 
 	int camHeightScale;
 	int camWidthScale;
+    long frameRateTimer;
+    bool frameDirection;
 	
 
 	//Path
@@ -175,14 +175,15 @@ public:
     bool pathZoom;
     float boidRotation;
     ofPoint closestPoint;
-     ofVec2f predict;
+    ofVec2f predict;
+    ofRectangle pathScaleRect;
+   
     
 	//Settings
 	string message;
 	//string xmlStructure;
 	int lastTagNumber;
 		
-	
 	//Flocking
 	ofxFlocking flock;
 	float setSeparation;
@@ -194,15 +195,14 @@ public:
 	int nrBoids;
 	float lineFollowMult;
 	float pushMaxSpeed;
+    
 	
-
-	
-	//Show Managment
+    //Show Managment
 	int showState;
 	bool cvImgDisp;
 	int mode;
 	ofxXmlSettings showXML;
-    ofImage testImage;
+    //ofImage testImage;
     
 		
 	

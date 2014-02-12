@@ -18,7 +18,7 @@ public:
 
     ofPixels     colorPix;
     ofPixels     depthPix;
-    
+    bool        isFrameNew;
     ofxKinect kinect;
     //ofVideoGrabber cam;
     
@@ -29,18 +29,23 @@ public:
     
     void updateThread(){
         
+        isFrameNew = false;
+        
         kinect.update();
         
         
         if(kinect.isFrameNew()){
             
+            isFrameNew = true;
             //kinectColor.setFromPixels(cam.getPixelsRef());
             colorPix.setFromExternalPixels(kinect.getCalibratedRGBPixels(), kinect.width, kinect.height, OF_PIXELS_RGB);
             depthPix.setFromExternalPixels(kinect.getDepthPixels(), kinect.width, kinect.height, OF_PIXELS_MONO);
+            
 
             
         }
         
+              
         
         
     }

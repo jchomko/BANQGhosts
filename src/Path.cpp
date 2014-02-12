@@ -39,13 +39,43 @@ void Path::addPath(ofPolyline p){
 
 void Path::display(){
 	
-	ofPushMatrix();
+    ofPushStyle();
+    ofSetColor( 0, 0, 200, 170);
+    
+//    for (int i = 0; i >polylines.size(); i ++) {
+//        
+//        polylines[i].draw();
+//        
+//        vector<ofPoint> pth = polylines[i].getVertices();
+//        
+//        for (int p = 0; p < pth.size(); p++ ) {
+//            
+//            float z = pth[p].z;
+//            
+//            ofEllipse(pth[p].x, pth[p].y , z, z);
+//            
+//        }
+//        
+//    
+//        ofPushStyle();
+//        ofFill();
+//        ofSetColor(255, 0, 0);
+//        ofEllipse(endPoints[i], 40, 40);
+//        ofPopStyle();
+//        
+//        ofPushStyle();
+//    ofFill();
+//        ofSetColor(0, 255, 0);
+//        ofEllipse(startPoints[i], 40, 40);
+//        ofPopStyle();
+    
+        
+//    }
+    
+    ofPopStyle();
+    
 	
-	ofSetColor(255, 0, 0);
 	
-	points.draw();
-	
-	ofPopMatrix();
 }
 
 void Path::clear(){
@@ -56,20 +86,6 @@ void Path::clear(){
     lastNearestIndex = 0;
     lastLastNearestIndex = 0;
 }
-
-//ofPoint Path::getNextPoint(){
-//    
-//    pointIndex ++;
-//    
-//    if (pointIndex > polylines[0].getVertices().size()) {
-//        
-//        pointIndex = 0;
-//        
-//    }
-//    
-//    return polylines[0].getVertices()[pointIndex];
-//    
-//}
 
 
 

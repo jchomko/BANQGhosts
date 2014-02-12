@@ -77,46 +77,9 @@ Boid::Boid(int x, int y, int nf) {
     }
     //Sequence variables
     //dispTex.allocate(640,360,GL_RGBA);
-   
+    
+    
 	
-}
-
-
-void Boid::drawVideo(int index){
-	
-    
-   
-    ofVec3f l = getLoc();
-    //Draw the Sequence
-    ofPushMatrix();
-    
-    //Set coordinates
-    ofTranslate(l.x, l.y);
-    
-    //Add 90 degrees of rotation to account for the camera's orientation
-    //this may need to change depending on where the camera is placed in future
-    
-    ofRotate(l.z+rot); //+90
-    
-    //dispTex.loadData(pixels[index]);
-	
-    //1.779 is the ratio of the camera used at Joliette 2012/2013
-	//This should change if a new camera is used
-	
-    //dispTex.setAnchorPoint((videoScale*1.779)/2, videoScale/3);
-    
-	pixels[index].setAnchorPoint((videoScale*1.779)/2, videoScale/3);
-	
-    //Draw Image
-	//dispTex.draw(0, 0,videoScale *1.779, videoScale);
-    
-    pixels[index].draw(0, 0,videoScale *1.779, videoScale);
-	
-    //Return the flap value
-	//return(flaps[index]);
-    
-    ofPopMatrix();
-    
 }
 
 
@@ -164,32 +127,69 @@ void Boid::setLoc(ofVec2f p){
 
 
 // Method to update location
-void Boid::update(vector<Boid> &boids) {
+void Boid::update(vector<Boid> &boids, Path  * path) {
 	
 	predict.set(vel);
 	predict.normalize();
     
     //Adjust for perspective
-	maxspeed = maxspeed + videoScale*0.05;
-	addNoise();
-	
+    
+    maxspeed = maxspeed + ofMap(videoScale, 10, 300, 0.3, 10);
+    
+       
+   
+    flock(boids);
+    
+    seekPath(path);
+    
+    
+    vel.z = videoScale;
+    
     avgVel.push_back(vel);
 	
-	if(avgVel.size()> 20){
+	if(avgVel.size()> 30){
         
 		avgVel.erase(avgVel.begin());
-	
+        
     }
 	
+    avg.set(0, 0);
+    
 	for(int i = 0; i < avgVel.size(); i ++){
+        
 		avg += avgVel[i];
-	}
+        
+    }
 	
 	avg /= avgVel.size();
-		
-    flock(boids);
-		
+
+    
+    float diff =  lastZ - videoScale;
+    
+    avgPerspective.push_back(2*diff);
+    
+    if( avgPerspective.size() > 40){
+        
+        avgPerspective.erase(avgPerspective.begin());
+    }
+    
+    perspectiveAvg = 0;
+    
+    
+    for(int i = 0; i < avgPerspective.size(); i ++){
+        perspectiveAvg += avgPerspective[i];
+	}
+    
+    perspectiveAvg /= avgPerspective.size();
+    
+    lastZ = videoScale;
+ 
+    
+    
+    loc += addNoise();
+	
     vel += acc;   // Update velocity
+    
     vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
     vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
     loc += vel;
@@ -197,14 +197,95 @@ void Boid::update(vector<Boid> &boids) {
     acc = 0;  // Reset accelertion to 0 each cycle
     
     
-//         if (loc.x <  - r -100) loc.x = (ofGetWidth())+r +100  ;
-//         if (loc.y < - r  ) loc.y =	 (ofGetHeight())+r +100 ;
-//         
-//         if (loc.x > ((ofGetWidth()))+r+100) loc.x = -r-100 ;
-//         if (loc.y > (ofGetHeight())+r+100) loc.y =  -r ;
-    
-
 	
+}
+
+
+
+void Boid::drawVideo(int index){
+	
+    
+    
+    ofVec3f l = getLoc();
+    //Draw the Sequence
+    ofPushMatrix();
+    
+    //Set coordinates
+    ofTranslate(l.x, l.y);
+    
+   
+    ofRotate(l.z + rot); //
+   // ofRotateY(perspectiveAvg);
+    
+  
+    //1.779 is the ratio of the camera used at Joliette 2012/2013
+	//This should change if a new camera is used
+	
+     
+	pixels[index].setAnchorPoint((avg.z*1.779)/2, avg.z/3);
+	pixels[index].draw(0, 0,avg.z *1.779, avg.z);
+    ofPopMatrix();
+    
+    lastZ = videoScale;
+    
+    
+}
+
+
+void Boid::seekPath(Path * path){
+    
+    if( path->polylines.size() > 0){
+        
+        ofVec3f closestPoint;
+        
+        //          for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
+        //
+        //           closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+        //
+        //           //   closestPoint = paths[pathIndex]->getNearestPoint(predict);
+        //            // closestPoint = paths[pathIndex]->getNearestPoint(predict);
+        //
+        //            float d = predict.distance(closestPoint);
+        //
+        //            if(d < shortest){
+        //                polyIndex = p;
+        //                shortest = d;
+        //                goal = closestPoint;
+        //            }
+        //
+        //            //Check if at end
+        //              if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[p]) < 140 ){
+        //                flock.boids[i].setLoc(paths[pathIndex]->startPoints[p]);
+        //              }
+        //
+        //
+        //                  flock.boids[i].rot = paths[pathIndex]->rot;
+        //                  flock.boids[i].videoScale = closestPoint.z;
+        //                  closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
+        //                  flock.boids[i].seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
+        //
+        //
+        //          }
+        
+        
+        //Should input dimensions somewhere
+        
+        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 ){
+            follow(path, 0);
+        }
+        
+        rot = path->rot;
+        
+        closestPoint = path->polylines[pathFollowIndex].getClosestPoint(getPredictLoc());
+        
+        videoScale = closestPoint.z;
+        
+        seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
+        
+    }
+
+
+
 }
 
 
@@ -319,6 +400,8 @@ void Boid::draw() {
     ofPushMatrix();
     ofTranslate(loc.x, loc.y);
     ofRotateZ(heading2D);
+   
+    
 	ofBeginShape();
     ofVertex(0, -r*2);
     ofVertex(-r, r*2);
@@ -346,19 +429,20 @@ void Boid::flock(vector<Boid> &boids) {
 }
 
 
-void Boid::follow(Path path, int i){
+void Boid::follow(Path  * path, int i){
 
     ofVec3f startVel;
     
-    if(path.startPoints.size() > 0){
-         
-       
+    pathFollowIndex = ofRandom(path->polylines.size());
     
-        startVel = path.polylines[0].getVertices()[1] - path.polylines[0].getVertices()[0];
+
+    if(path->startPoints.size() > 0){
+         
+        startVel = path->polylines[pathFollowIndex].getVertices()[1] - path->polylines[pathFollowIndex].getVertices()[0];
         
         startVel.normalize();
         
-        loc.set(path.startPoints[0] - startVel * i * 300);
+        loc.set(path->startPoints[pathFollowIndex] - startVel * i * 100);
         
         vel.set(startVel);
     }
