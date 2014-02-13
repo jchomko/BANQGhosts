@@ -83,35 +83,60 @@ void Path::clear(){
     polylines.clear();
     startPoints.clear();
     endPoints.clear();
-    lastNearestIndex = 0;
-    lastLastNearestIndex = 0;
+   
+    
+}
+
+void Path::reset(){
+
+
+    lastNearestIndex = 10;
+    nearestIndex = 0;
+    
+    
 }
 
 
 
-ofPoint Path::getNearestPoint(ofPoint target){
+ofPoint Path::getNearestPoint(ofPoint target, int targetPath){
     
-    vector<ofPoint> verts = polylines[0].getVertices();
-    float minDist = 100000;
+   
+    vector<ofPoint> verts = polylines[targetPath].getVertices();
+   
+    float minDist = 1000000;
     ofPoint nearest;
+   
     
-    
+   
     for (int i = lastNearestIndex; i < verts.size(); i ++) {
-        
-        float dist = target.distance(verts[i]);
-        
-        if(dist < minDist ){
             
-            lastNearestIndex = i;
-            nearest = verts[i];
-            minDist = dist;
-        
+            float dist = target.distance(verts[i]);
+            
+            if(dist < minDist ){
+                
+                nearestIndex = i;
+                nearest = verts[i];
+                minDist = dist;
+              
+                
+            }
+            
         }
+    
+    cout<< "nearest Index " << nearestIndex <<  "diferece" << nearestIndex - lastNearestIndex << endl;
+    
+    if(nearestIndex == lastNearestIndex ){
+        
+         lastNearestIndex ++;
+         nearest = verts[lastNearestIndex];
         
     }
     
+    lastNearestIndex = nearestIndex;
+
+    
    
-       
+    
     return nearest;
     
 }

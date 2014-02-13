@@ -88,10 +88,7 @@ void testApp::setup(){
     recordGui->toggleVisible();
     editGui->toggleVisible();
 	
-	//OSC
-    //oscReceiver.setup(8212);
-	
-    //
+    //Midi
     // print input ports to console
 	midiIn.listPorts();
 	
@@ -291,20 +288,14 @@ void testApp::update(){
 	 
     kinThread.updateOnce();
     
-    
     camWidthScale = ofGetWidth();
 	camHeightScale = camWidthScale *0.562; //should give proportions of 16:9
-
-    
-    
 
     //Draw test image to FBO
     //Draw boids here
     
-    
     //Draw Flying Videos to Syphon Layer
-    
-	drawBoids();
+    drawBoids();
     
     
     
@@ -319,11 +310,7 @@ void testApp::update(){
     
     //Reset show variables
 	if (showState == 1) {
-        
-//        if (showBoidsHead > nrDisplaySequences) {
-//            showBoidsTail = showBoidsHead - nrDisplaySequences;
-//		}
-		showBoids = true;
+        showBoids = true;
 	}
 	
     //Frame Management
@@ -346,35 +333,6 @@ void testApp::update(){
         
             
     }
-    
-    
-    
-//    if(oscReceiver.hasWaitingMessages()){
-//        
-//        ofxOscMessage om;
-//       // ofxOscBundle ob;
-//        
-//        
-//       if( oscReceiver.getNextMessage(&om)){
-//            
-//            string s = om.getAddress();
-//            
-//            cout << "args : " << om.getAddress() << endl;
-//           
-//            //if(strstr(s,"jonathan")){
-//            
-//            if (s == "/activeclip/link3/linkmultiplier") {
-//                
-//                cout << "WE GOT ONE" << om.getAddress() <<  "value: " << om.getArgAsFloat(0) << endl;
-//                
-//            }
-//        
-//        
-//         // get address and then do something with that value
-//         // we'll just parse out the column numbe or something              
-//         }
-//   
-//    }
     
     
     
@@ -722,19 +680,19 @@ void testApp::drawBoids(){
         
         //Draw Saved Lines
         
-        paths[pathIndex]->display();
-        
         for (int i = 0; i < paths[pathIndex]->polylines.size(); i ++) {
             
-            paths[pathIndex]->polylines[i].draw();
-            
             vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
+            ofBeginShape();
             for (int p = 0; p < pth.size(); p++ ) {
                 
                 float z = pth[p].z;
                 ofEllipse(pth[p].x, pth[p].y , z, z);
+                ofVertex(pth[p].x, pth[p].y);
                 
             }
+            ofEndShape();
+            
             
             
 //            ofPushStyle();
@@ -780,6 +738,7 @@ void testApp::drawBoids(){
             
        
         flock.boids[i].drawVideo(playbackIndex);
+            flock.boids[i].draw();
             
             
             //Debug stuff
@@ -1096,9 +1055,7 @@ void testApp::drawCVImages()
 	ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 290);
 	
-//	ofSetColor(255, 0,0);
-//	ofLine(ofGetWidth()-100, 0, ofGetWidth()-100, ofGetHeight());
-//    pth.display();
+
 	
 }
 
@@ -1244,7 +1201,7 @@ void testApp::keyPressed  (int key){
     
     if(key == 'z'){
         
-        recordBlanks(); // = true;
+        recordBlanks();
     }
 	
     if(key == 'n'){

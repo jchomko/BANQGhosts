@@ -19,7 +19,7 @@ Boid::Boid() {
 	vel.set(0,0);
 	acc.set(0,0);
 	predict.set(0,0);
-	avg.set(0,0);
+	locAvg.set(0,0);
 	pushLoc.set(0,0);
 	
     r = 3.0;
@@ -65,7 +65,7 @@ Boid::Boid(int x, int y, int nf) {
 	yNoise = 0;
 	zNoise = 0;
 	xNoiseInc = ofRandom(0.001, 0.007);
-	yNoiseInc = ofRandom(0.001, 0.007);
+	yNoiseInc = ofRandom(0.01, 0.07);
 	zNoiseInc = ofRandom(0.001, 0.007);
     
     //pixels = new ofPixels[num_frames];
@@ -78,6 +78,10 @@ Boid::Boid(int x, int y, int nf) {
     //Sequence variables
     //dispTex.allocate(640,360,GL_RGBA);
     
+    lastPathId = 0;
+    
+    nearestIndex = 0;
+    lastNearestIndex = -1;
     
 	
 }
@@ -85,7 +89,7 @@ Boid::Boid(int x, int y, int nf) {
 
 void Boid::updateValues(float _separation,float _maxforce, float _maxspeed, float _seekforce) {
 	
-    s = _separation * 0.001; //Separation scale +
+    s = _separation * 0.01; //Separation scale +
 	//a = _a; //Cohesion
 	//c = _c; //Alignement
     
@@ -95,6 +99,7 @@ void Boid::updateValues(float _separation,float _maxforce, float _maxspeed, floa
     
     //desiredseparation = _dS;
 }
+
 
 void Boid::setLoc(ofVec2f p){
     
@@ -128,102 +133,110 @@ void Boid::setLoc(ofVec2f p){
 
 // Method to update location
 void Boid::update(vector<Boid> &boids, Path  * path) {
-	
-	predict.set(vel);
-	predict.normalize();
-    
-    //Adjust for perspective
-    
-    maxspeed = maxspeed + ofMap(videoScale, 10, 300, 0.3, 10);
-    
-       
-   
-    flock(boids);
-    
-    seekPath(path);
-    
-    
-    vel.z = videoScale;
-    
-    avgVel.push_back(vel);
-	
-	if(avgVel.size()> 30){
-        
-		avgVel.erase(avgVel.begin());
-        
-    }
-	
-    avg.set(0, 0);
-    
-	for(int i = 0; i < avgVel.size(); i ++){
-        
-		avg += avgVel[i];
-        
-    }
-	
-	avg /= avgVel.size();
 
     
-    float diff =  lastZ - videoScale;
+    //Adjust for perspective
+    maxspeed = maxspeed + ofMap(velAvg.z, 10, 300, 0.2, 10);
     
+    flock(boids);
+    seekPath(path);
+    
+    // addNoise();
+    vel += acc;   // Update velocity
+    
+    vel.x =  ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed -maxspeed
+    vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
+    
+    loc += vel;
+    acc = 0;  // Reset accelertion to 0 each cycle
+    
+    averages();
+
+}
+
+
+
+void Boid::averages(){
+    
+    //Perspective Y Rotate Average
+    float diff =  lastZ - videoScale;
     avgPerspective.push_back(2*diff);
     
     if( avgPerspective.size() > 40){
-        
         avgPerspective.erase(avgPerspective.begin());
     }
-    
     perspectiveAvg = 0;
-    
     
     for(int i = 0; i < avgPerspective.size(); i ++){
         perspectiveAvg += avgPerspective[i];
 	}
     
     perspectiveAvg /= avgPerspective.size();
-    
     lastZ = videoScale;
- 
     
+    //Position Average
+    ofVec3f a;
+    a.set(loc.x, loc.y, videoScale);
     
-    loc += addNoise();
+    locAvgs.push_back(a); // vel
 	
-    vel += acc;   // Update velocity
+	if(locAvgs.size()> 20){
+    	locAvgs.erase(locAvgs.begin());
+    }
+	locAvg.set(0, 0);
+    for(int i = 0; i < locAvgs.size(); i ++){
+    	locAvg += locAvgs[i];
+    }
+	locAvg /= locAvgs.size();
     
-    vel.x = ofClamp(vel.x, -maxspeed, maxspeed);  // Limit speed
-    vel.y = ofClamp(vel.y, -maxspeed, maxspeed);  // Limit speed
-    loc += vel;
     
-    acc = 0;  // Reset accelertion to 0 each cycle
+    //Velocity Average
+    ofVec3f v;
+    v.set(vel.x, vel.y,videoScale);
     
-    
+    velAvgs.push_back(v); // vel
 	
+	if(velAvgs.size()> 30){
+    	velAvgs.erase(velAvgs.begin());
+    }
+	velAvg.set(0, 0);
+    for(int i = 0; i < velAvgs.size(); i ++){
+    	velAvg += velAvgs[i];
+    }
+	velAvg /= velAvgs.size();
+    
+    
 }
-
-
 
 void Boid::drawVideo(int index){
 	
+    //float angle =(float)atan2(-avg.y, avg.x);
+	//float angle = (float)atan2(-avg.y, avg.x);
+    //float angle = (float)atan2(-vel.y, vel.x);
     
+    float angle = (float)atan2(-velAvg.y, velAvg.x);
+    float theta =  -1.0*angle;
+	float heading2D = ofRadToDeg(theta)+90;
+	
     
-    ofVec3f l = getLoc();
     //Draw the Sequence
     ofPushMatrix();
     
     //Set coordinates
-    ofTranslate(l.x, l.y);
+    //ofTranslate(loc.x, loc.y + noise.y*50 );
+    ofTranslate(locAvg.x, locAvg.y + noise.y*50);
     
-   
-    ofRotate(l.z + rot); //
-   // ofRotateY(perspectiveAvg);
+    ofRotate(heading2D + 90); // rot
+    // ofRotateY(perspectiveAvg);
     
   
     //1.779 is the ratio of the camera used at Joliette 2012/2013
 	//This should change if a new camera is used
-	
-     
-	pixels[index].setAnchorPoint((avg.z*1.779)/2, avg.z/3);
-	pixels[index].draw(0, 0,avg.z *1.779, avg.z);
+//	pixels[index].setAnchorPoint((videoScale*1.779)/2, videoScale/3);
+//	pixels[index].draw(0, 0,videoScale *1.779, videoScale);
+    pixels[index].setAnchorPoint((velAvg.z*1.779)/2, velAvg.z/3);
+	pixels[index].draw(0, 0,velAvg.z *1.779, velAvg.z);
+    
     ofPopMatrix();
     
     lastZ = videoScale;
@@ -234,53 +247,74 @@ void Boid::drawVideo(int index){
 
 void Boid::seekPath(Path * path){
     
-    if( path->polylines.size() > 0){
+    predict.set(vel.x, vel.y, videoScale);
+	predict.normalize();
+    predict *= velAvg.z*2; // averaged video size
+    predict += loc;
+    
+	if( path->polylines.size() > 0){
         
-        ofVec3f closestPoint;
-        
-        //          for(int p = 0; p < paths[pathIndex]->polylines.size();  p++){
-        //
-        //           closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
-        //
-        //           //   closestPoint = paths[pathIndex]->getNearestPoint(predict);
-        //            // closestPoint = paths[pathIndex]->getNearestPoint(predict);
-        //
-        //            float d = predict.distance(closestPoint);
-        //
-        //            if(d < shortest){
-        //                polyIndex = p;
-        //                shortest = d;
-        //                goal = closestPoint;
-        //            }
-        //
-        //            //Check if at end
-        //              if(flock.boids[i].getLoc().distance(paths[pathIndex]->endPoints[p]) < 140 ){
-        //                flock.boids[i].setLoc(paths[pathIndex]->startPoints[p]);
-        //              }
-        //
-        //
-        //                  flock.boids[i].rot = paths[pathIndex]->rot;
-        //                  flock.boids[i].videoScale = closestPoint.z;
-        //                  closestPoint = paths[pathIndex]->polylines[p].getClosestPoint(predict);
-        //                  flock.boids[i].seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
-        //
-        //
-        //          }
-        
-        
-        //Should input dimensions somewhere
-        
-        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 ){
-            follow(path, 0);
-        }
         
         rot = path->rot;
         
-        closestPoint = path->polylines[pathFollowIndex].getClosestPoint(getPredictLoc());
+        //closestPoint = path->getNearestPoint(predict, pathFollowIndex);
         
         videoScale = closestPoint.z;
         
-        seek(closestPoint); //paths[pathIndex]->getNextPoint() //goal
+        vector<ofPoint> verts = path->polylines[pathFollowIndex].getVertices();
+       
+        float minDist = 1000000;
+       
+        for (int i = nearestIndex; i < verts.size(); i ++) {
+            
+            float dist = predict.distance(verts[i]);
+            
+            if(dist < minDist ){
+                
+                nearestIndex = i;
+                
+                closestPoint = verts[i];
+                
+                minDist = dist;
+                
+            }
+        }
+        
+        cout << "nearestIndex: " << nearestIndex << " diff: " <<  nearestIndex - lastNearestIndex << endl;
+        
+        if( lastNearestIndex == nearestIndex ){
+            
+            nearestIndex ++;
+            
+            closestPoint = verts[lastNearestIndex];
+           
+        
+            }else{
+            
+           lastNearestIndex = nearestIndex;
+               
+        }
+        
+          
+        
+          
+        
+        
+        if(loc.distance(closestPoint) > videoScale/4){
+            
+            seek(closestPoint);
+        }
+        
+       // lastPathId = n;
+        
+        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 + videoScale){
+            
+            path->reset();
+            
+            follow(path, 3);
+            
+        }
+        
         
     }
 
@@ -305,6 +339,7 @@ void Boid::arrive(ofVec2f target) {
 // Takes a second argument, if true, it slows down as it approaches the target
 
 ofVec2f Boid::steer(ofVec2f target, bool slowdown) {
+   
     ofVec2f steer;  // The steering vector
     ofVec2f desired = target - loc;  // A vector pointing from the location to the target
     
@@ -336,7 +371,7 @@ ofVec2f Boid::steer(ofVec2f target, bool slowdown) {
     return steer;
 }
 
-ofVec3f Boid::addNoise(){
+void  Boid::addNoise(){
 	
 	xNoise += xNoiseInc;
 	yNoise += yNoiseInc;
@@ -345,7 +380,7 @@ ofVec3f Boid::addNoise(){
 	noise.x = ofNoise(xNoise);
 	noise.y = sin(yNoise);  // up an down
 	
-	return noise;
+    
 	
 }
 
@@ -371,17 +406,7 @@ ofVec3f Boid::getLoc(){
 	
 	ofVec3f l;
 	
-	//float angle =(float)atan2(-avg.y, avg.x);
-	float angle = (float)atan2(-avg.y, avg.x);
-    float theta =  -1.0*angle;
-	float heading2D = ofRadToDeg(theta)+90;
-	
-	
-	
-	l.x = loc.x; // + noise.x*50;
-	l.y = loc.y; // + noise.y*50;
-	l.z = heading2D;
-    
+	   
 	//l += pushLoc;
 	
 	return l;
@@ -395,12 +420,17 @@ void Boid::draw() {
     float theta =  -1.0*angle;
 	float heading2D = ofRadToDeg(theta)+90;
 	
+   
+    
 	ofPushStyle();
     ofFill();
+    
+    ofLine(predict, closestPoint);
     ofPushMatrix();
+   
     ofTranslate(loc.x, loc.y);
     ofRotateZ(heading2D);
-   
+    
     
 	ofBeginShape();
     ofVertex(0, -r*2);
@@ -417,21 +447,30 @@ void Boid::draw() {
 void Boid::flock(vector<Boid> &boids) {
     
 	ofVec2f sep = separate(boids);
-	ofVec2f ali = align(boids);
-	ofVec2f coh = cohesion(boids);
+	//ofVec2f ali = align(boids);
+	//ofVec2f coh = cohesion(boids);
 	
 	// Arbitrarily weight these forces
 	sep *= s;
- 	ali *= 1.0; //a
-	coh *= 1.0;//c
+ 	//ali *= 1.0; //a
+	//coh *= 1.0;//c
 	
 	acc += sep; //+ ali + coh;
 }
 
 
-void Boid::follow(Path  * path, int i){
+void Boid::follow(Path * path, int i){
 
     ofVec3f startVel;
+    
+    //path->reset();
+    nearestIndex = 0;
+    lastNearestIndex = -1;
+    
+    velAvgs.clear();
+    locAvgs.clear();
+    
+    //videoScale = 0;
     
     pathFollowIndex = ofRandom(path->polylines.size());
     

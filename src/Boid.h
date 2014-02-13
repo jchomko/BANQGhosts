@@ -34,6 +34,8 @@ public:
 	void flock(vector<Boid> &boids);
 	void follow(Path * path, int i);
     void setLoc(ofVec2f p);
+    void averages();
+    
 	
 	ofVec2f getPredictLoc();
 	float getScale();
@@ -45,20 +47,27 @@ public:
 	ofVec2f cohesion(vector<Boid> &boids);
 	
 	ofVec3f loc,vel,acc;
-	ofVec2f predict;
+	ofVec3f predict;
 	ofVec2f origin;
 	ofVec2f pushLoc;
-	
-	float psh;
-	vector <ofVec3f> avgVel;
-    vector<float> avgPerspective;
-    float perspectiveAvg;
+	ofVec3f closestPoint;
+    int nearestIndex;
+    int lastNearestIndex;
     
-	ofVec3f addNoise();
+	float psh;
+    
+    
+	vector <ofVec3f> locAvgs;
+    vector<float> avgPerspective;
+    vector<ofVec3f> velAvgs;
+    ofVec3f velAvg;
+    
+    float perspectiveAvg;
+    void addNoise();
 
 	
-	float p;
-	int hold;
+	//float p;
+	//int hold;
 	//float scale;
 	float xNoise;
 	float yNoise;
@@ -67,7 +76,7 @@ public:
 	float yNoiseInc;
 	float zNoiseInc;
 	ofVec3f noise;
-	ofVec3f avg;
+	ofVec3f locAvg;
     
     
 	float r;
@@ -97,6 +106,8 @@ public:
     int pathFollowIndex;
     
     float lastZ;
+    int lastPathId;
+    
     
 };
 

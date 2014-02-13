@@ -36,9 +36,7 @@ void ofxFlocking::addBoid(int x, int y, int nf) {
 //Include number of boids? 
 void ofxFlocking::follow(Path * path){
     
-  
-    
-    for(int i=0; i<boids.size(); i++) {
+  for(int i=0; i<boids.size(); i++) {
 		
         boids[i].follow(path, i);
 		

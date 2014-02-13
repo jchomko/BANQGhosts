@@ -9,7 +9,6 @@
 #include "ofxUI.h"
 #include "ofxFlocking.h"
 #include "ofxKinect.h"
-#include "ofxOsc.h"
 #include "Path.h"
 #include "kinectThread.h"
 #include "ofxMidi.h"
@@ -77,10 +76,7 @@ public:
 	bool drawFill; 
 	string currentPath;
 	
-	
-	//OSC Communication
-    ofxOscReceiver oscReceiver;
-    //Midi Input
+	 //Midi Input
     
     ofxMidiIn	midiIn;
 	ofxMidiMessage midiMessage;
@@ -188,7 +184,6 @@ public:
     
 	//Settings
 	string message;
-	//string xmlStructure;
 	int lastTagNumber;
 		
 	//Flocking
@@ -209,7 +204,7 @@ public:
 	bool cvImgDisp;
 	int mode;
 	ofxXmlSettings showXML;
-    //ofImage testImage;
+ 
     
 		
 	

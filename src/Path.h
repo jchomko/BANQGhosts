@@ -17,12 +17,12 @@ public:
 	Path();
 	void addPath(ofPolyline p);
     void clear();
-   
+    void reset();
     
     ofPoint getNextPoint();
-    ofPoint getNearestPoint(ofPoint _t);
+    ofPoint getNearestPoint(ofPoint _t, int _targetPath);
     int lastNearestIndex;
-    int lastLastNearestIndex;
+    int nearestIndex;
     
 	ofPolyline points;
     vector <ofPolyline> polylines;
@@ -30,6 +30,8 @@ public:
     vector <ofPoint> endPoints;
     
     ofImage background;
+    
+    int stuckInt;
     
 	float radius;
 	float rot;
