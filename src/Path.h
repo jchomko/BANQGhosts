@@ -26,6 +26,7 @@ public:
     
 	ofPolyline points;
     vector <ofPolyline> polylines;
+    vector <float> videoScales;
     vector <ofPoint> startPoints;
     vector <ofPoint> endPoints;
     

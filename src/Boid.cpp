@@ -138,8 +138,10 @@ void Boid::update(vector<Boid> &boids, Path  * path) {
     //Adjust for perspective
     maxspeed = maxspeed + ofMap(velAvg.z, 10, 300, 0.2, 10);
     
-    flock(boids);
     seekPath(path);
+    
+    flock(boids);
+    
     
     // addNoise();
     vel += acc;   // Update velocity
@@ -183,7 +185,7 @@ void Boid::averages(){
 	if(locAvgs.size()> 20){
     	locAvgs.erase(locAvgs.begin());
     }
-	locAvg.set(0, 0);
+	locAvg.set(0, 0,0);
     for(int i = 0; i < locAvgs.size(); i ++){
     	locAvg += locAvgs[i];
     }
@@ -192,14 +194,14 @@ void Boid::averages(){
     
     //Velocity Average
     ofVec3f v;
-    v.set(vel.x, vel.y,videoScale);
+    v.set(vel.x, vel.y, videoScale);
     
     velAvgs.push_back(v); // vel
 	
 	if(velAvgs.size()> 30){
     	velAvgs.erase(velAvgs.begin());
     }
-	velAvg.set(0, 0);
+	velAvg.set(0, 0,0);
     for(int i = 0; i < velAvgs.size(); i ++){
     	velAvg += velAvgs[i];
     }
@@ -210,10 +212,7 @@ void Boid::averages(){
 
 void Boid::drawVideo(int index){
 	
-    //float angle =(float)atan2(-avg.y, avg.x);
-	//float angle = (float)atan2(-avg.y, avg.x);
     //float angle = (float)atan2(-vel.y, vel.x);
-    
     float angle = (float)atan2(-velAvg.y, velAvg.x);
     float theta =  -1.0*angle;
 	float heading2D = ofRadToDeg(theta)+90;
@@ -229,13 +228,10 @@ void Boid::drawVideo(int index){
     ofRotate(heading2D + 90); // rot
     // ofRotateY(perspectiveAvg);
     
-  
-    //1.779 is the ratio of the camera used at Joliette 2012/2013
-	//This should change if a new camera is used
-//	pixels[index].setAnchorPoint((videoScale*1.779)/2, videoScale/3);
-//	pixels[index].draw(0, 0,videoScale *1.779, videoScale);
-    pixels[index].setAnchorPoint((velAvg.z*1.779)/2, velAvg.z/3);
-	pixels[index].draw(0, 0,velAvg.z *1.779, velAvg.z);
+    // 1.333 is the aspect of the kinect
+    // should not be hard-coded
+    pixels[index].setAnchorPoint((velAvg.z*1.3333)/2, velAvg.z/3);
+	pixels[index].draw(0, 0,velAvg.z *1.3333, velAvg.z);
     
     ofPopMatrix();
     
@@ -247,9 +243,9 @@ void Boid::drawVideo(int index){
 
 void Boid::seekPath(Path * path){
     
-    predict.set(vel.x, vel.y, videoScale);
+    predict.set(velAvg.x, velAvg.y); //videoScale
 	predict.normalize();
-    predict *= velAvg.z*2; // averaged video size
+    predict *= 75; //videoScale*2 averaged video size
     predict += loc;
     
 	if( path->polylines.size() > 0){
@@ -257,63 +253,112 @@ void Boid::seekPath(Path * path){
         
         rot = path->rot;
         
+       
+//        closestPoint = path->polylines[pathFollowIndex].getClosestPoint(ofVec3f(predict.x, predict.y, predict.z));
+//        
+//        videoScale = closestPoint.z;
+//        
+//        
+//        if(loc.distance(ofVec2f(closestPoint.x, closestPoint.y)) > videoScale/4){
+//            
+//            seek(ofVec2f(closestPoint.x, closestPoint.y));
+//            
+//        }
+//
+//        
+//        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 ){
+//            
+//            //path->reset();
+//            follow(path, 3);
+//        
+//        }
+//        
+
+        //Tests for no turnback
+        
         //closestPoint = path->getNearestPoint(predict, pathFollowIndex);
-        
-        videoScale = closestPoint.z;
-        
         vector<ofPoint> verts = path->polylines[pathFollowIndex].getVertices();
-       
+        
+        
         float minDist = 1000000;
-       
+        
         for (int i = nearestIndex; i < verts.size(); i ++) {
+        
+                    float dist = predict.distance(verts[i]);
             
-            float dist = predict.distance(verts[i]);
+                    float distX = (predict.x - verts[i].x);
+                   // float distY = (predict.y - verts[i].y);
+                    //float dist = abs(distX ) + abs(distY);
             
-            if(dist < minDist ){
-                
-                nearestIndex = i;
-                
-                closestPoint = verts[i];
-                
-                minDist = dist;
-                
+                    if(dist < minDist){
+        
+                        closestPoint = verts[i];
+                        minDist = dist;
+        
+            
+                    }
+            
             }
-        }
         
-        cout << "nearestIndex: " << nearestIndex << " diff: " <<  nearestIndex - lastNearestIndex << endl;
+        //ofVec3f d =  - locAvg;
+//        
+//        if( closestPoint.x < locAvg.x){
+//            
+//            nearestIndex ++;
+//            
+//            closestPoint = verts[nearestIndex];
+//            
+//            cout << "diff : " << closestPoint.x - locAvg.x<< " index: " << nearestIndex << endl;
+//
+//        }
         
-        if( lastNearestIndex == nearestIndex ){
+        
+      //  lastClosestPoint = closestPoint;
+        
+         videoScale = closestPoint.z;
+        
+       // if(loc.distance(ofVec2f(closestPoint.x, closestPoint.y)) > videoScale/4){
+              seek(ofVec2f(closestPoint.x, closestPoint.y));
+        // }
+        
+        
+        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 ){
             
-            nearestIndex ++;
-            
-            closestPoint = verts[lastNearestIndex];
-           
-        
-            }else{
-            
-           lastNearestIndex = nearestIndex;
-               
-        }
-        
-          
-        
-          
-        
-        
-        if(loc.distance(closestPoint) > videoScale/4){
-            
-            seek(closestPoint);
-        }
-        
-       // lastPathId = n;
-        
-        if(loc.distance(path->endPoints[pathFollowIndex]) < 140 || loc.x > 5120 + videoScale){
-            
-            path->reset();
+            //path->reset();
             
             follow(path, 3);
             
         }
+
+
+        
+        
+        //        cout << "nearestIndex: " << nearestIndex << " diff: " <<  nearestIndex - lastNearestIndex  << " minDist: " << minDist << endl;
+        
+        
+        //        if( nearestIndex == lastNearestIndex && minDist < 50){
+        //
+        //            nearestIndex ++;
+        //
+        //            closestPoint = verts[nearestIndex];
+        //
+        //        }
+        //
+        //        lastNearestIndex = nearestIndex;
+        //
+        
+        // closestPoint = path->polylines[pathFollowIndex].getClosestPoint(predict);
+        //        float d = predict.distance(verts[nearestIndex]);
+        //
+        //        if( d < 40){
+        //
+        //            nearestIndex ++;
+        //            closestPoint = verts[nearestIndex];
+        //        }
+        //
+        //seek(closestPoint);
+        
+        // lastPathId = n;
         
         
     }
@@ -425,7 +470,7 @@ void Boid::draw() {
 	ofPushStyle();
     ofFill();
     
-    ofLine(predict, closestPoint);
+    ofLine(predict.x, predict.y, closestPoint.x, closestPoint.y);
     ofPushMatrix();
    
     ofTranslate(loc.x, loc.y);

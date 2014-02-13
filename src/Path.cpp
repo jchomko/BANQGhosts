@@ -32,7 +32,9 @@ void Path::addPath(ofPolyline p){
     startPoints.push_back(verts[0]);
     endPoints.push_back(verts[verts.size()-1]);
     
-    polylines.push_back(p);
+   // for(int i = 0; i < verts.size();  i++ ){
+        polylines.push_back(p);
+   // }
     
 
 }
@@ -101,43 +103,43 @@ void Path::reset(){
 ofPoint Path::getNearestPoint(ofPoint target, int targetPath){
     
    
-    vector<ofPoint> verts = polylines[targetPath].getVertices();
-   
-    float minDist = 1000000;
-    ofPoint nearest;
-   
-    
-   
-    for (int i = lastNearestIndex; i < verts.size(); i ++) {
-            
-            float dist = target.distance(verts[i]);
-            
-            if(dist < minDist ){
-                
-                nearestIndex = i;
-                nearest = verts[i];
-                minDist = dist;
-              
-                
-            }
-            
-        }
-    
-    cout<< "nearest Index " << nearestIndex <<  "diferece" << nearestIndex - lastNearestIndex << endl;
-    
-    if(nearestIndex == lastNearestIndex ){
-        
-         lastNearestIndex ++;
-         nearest = verts[lastNearestIndex];
-        
-    }
-    
-    lastNearestIndex = nearestIndex;
-
-    
-   
-    
-    return nearest;
+//    vector<ofPoint> verts = polylines[targetPath].getVertices();
+//   
+//    float minDist = 1000000;
+//    ofPoint nearest;
+//   
+//    
+//   
+//    for (int i = lastNearestIndex; i < verts.size(); i ++) {
+//            
+//            float dist = target.distance(verts[i]);
+//            
+//            if(dist < minDist ){
+//                
+//                nearestIndex = i;
+//                nearest = verts[i];
+//                minDist = dist;
+//              
+//                
+//            }
+//            
+//        }
+//    
+//    cout<< "nearest Index " << nearestIndex <<  "diferece" << nearestIndex - lastNearestIndex << endl;
+//    
+//    if(nearestIndex == lastNearestIndex ){
+//        
+//         lastNearestIndex ++;
+//         nearest = verts[lastNearestIndex];
+//        
+//    }
+//    
+//    lastNearestIndex = nearestIndex;
+//
+//    
+//   
+//    
+//    return nearest;
     
 }
 

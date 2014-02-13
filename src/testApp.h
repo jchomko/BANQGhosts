@@ -20,7 +20,7 @@
 #define MIN_VIDEO_SIZE 10
 #define NUM_SEQUENCES 24
 #define NUM_SERVERS 4
-#define PATH_RECT_IMAGE_PAD 100
+#define PATH_RECT_IMAGE_PAD 200
 
 
 

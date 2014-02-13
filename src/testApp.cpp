@@ -107,22 +107,24 @@ void testApp::setup(){
 	// print received messages to the console
 	midiIn.setVerbose(true);
     
+    
 	//Kinect
+    
+	camWidth 	= 640;
+	camHeight 	= 480;
     kinThread.kinect.init();
     kinThread.kinect.setVerbose(true);
     kinThread.kinect.open();
     kinThread.kinect.setCameraTiltAngle(0);
     
     kinThread.kinect.setUseTexture(false);
-    kinThread.colorPix.allocate(640, 360, OF_PIXELS_RGB);
-    kinThread.depthPix.allocate(640, 360, OF_PIXELS_MONO);
+    kinThread.colorPix.allocate(640, 480, OF_PIXELS_RGB);
+    kinThread.depthPix.allocate(640, 480, OF_PIXELS_MONO);
     kinThread.initAndSleep();
     //testImage.allocate(640, 360, OF_IMAGE_COLOR);
 
 	
-	//Video
-	camWidth 	= 640; 
-	camHeight 	= 360;
+	
 	
 	
 	
@@ -289,7 +291,7 @@ void testApp::update(){
     kinThread.updateOnce();
     
     camWidthScale = ofGetWidth();
-	camHeightScale = camWidthScale *0.562; //should give proportions of 16:9
+	camHeightScale = camWidthScale *0.75; //should give proportions of 16:9
 
     //Draw test image to FBO
     //Draw boids here
@@ -738,7 +740,7 @@ void testApp::drawBoids(){
             
        
         flock.boids[i].drawVideo(playbackIndex);
-            flock.boids[i].draw();
+        flock.boids[i].draw();
             
             
             //Debug stuff
@@ -850,8 +852,8 @@ void testApp::drawMonitor(){
 	//Progress bar for recording
     //TODO remove hardcoding
     
-    ofRect(800,(ofGetHeight()/2), 20, (100-index)*2);
-	ofRect(800,(ofGetHeight()/2), 20, -(100-index)*2);
+    ofRect(800,(ofGetHeight()/2), 20, (NUM_FRAMES-index)*2);
+	ofRect(800,(ofGetHeight()/2), 20, -(NUM_FRAMES-index)*2);
 	
 }
 
@@ -1267,7 +1269,7 @@ void testApp::mouseReleased(int x, int y, int button){
     
     if (tempPl.size() > 0) {
         
-        tempPl.simplify(3);
+        tempPl.simplify();
         
         paths[pathIndex]->addPath(tempPl);
         paths[pathIndex]->rot = boidRotation;

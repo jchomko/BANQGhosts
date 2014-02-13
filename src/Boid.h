@@ -51,6 +51,8 @@ public:
 	ofVec2f origin;
 	ofVec2f pushLoc;
 	ofVec3f closestPoint;
+    ofVec3f lastClosestPoint;
+    
     int nearestIndex;
     int lastNearestIndex;
     
