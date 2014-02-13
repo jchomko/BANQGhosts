@@ -53,7 +53,7 @@ void testApp::setup(){
     //editGui->addMinimalSlider("DESIRED SEPARATION", 0, 200, setDesiredSeparation, 95, dim);
 	//editGui->addMinimalSlider("COHESION", 0, 10, setCohesion, 95, dim);
 	editGui->addMinimalSlider("MAXFORCE", 0, 1, setForce, 95, dim);
-    editGui->addMinimalSlider("MAXSPEED", 0, 5, setMaxSpeed, 95, dim);
+    editGui->addMinimalSlider("MAXSPEED", 0, 15, setMaxSpeed, 95, dim);
 	//editGui->addMinimalSlider("FLAP MAGNITUDE", 0, 1, flapMagnitude, 95, dim);
 	editGui->addMinimalSlider("LINE FOLLOW", 0, 10, lineFollowMult, 95, dim);
     editGui->addMinimalSlider("ROTATION", 0, 360, boidRotation, 95, dim);
@@ -321,7 +321,25 @@ void testApp::update(){
     //If the number of displayed boids is greater than the desired number
 	if ( showBoidsHead - showBoidsTail > NUM_SEQUENCES - 2){
 		removeLastBoid = true;
-	}
+       
+    }
+    
+    if(removeLastBoid){
+        
+            removeOpacity -= 3;
+        
+        if(removeOpacity <= 0){
+            
+            showBoidsTail ++;
+            removeLastBoid = false;
+            removeOpacity = 255;
+            
+            cout<< "last boid removed" << endl;
+
+            
+        }
+    
+    }
     
     
     for (int j = showBoidsTail; j < showBoidsHead; j ++){
@@ -685,7 +703,10 @@ void testApp::drawBoids(){
         for (int i = 0; i < paths[pathIndex]->polylines.size(); i ++) {
             
             vector<ofPoint> pth = paths[pathIndex]->polylines[i].getVertices();
+            //vector<float> pthZ = paths[pathIndex]->videoScales
             ofBeginShape();
+            
+            
             for (int p = 0; p < pth.size(); p++ ) {
                 
                 float z = pth[p].z;
@@ -737,11 +758,20 @@ void testApp::drawBoids(){
         
         //Loop i around the size of the buffer using modulo
         int i = j % bufferSize;
+        
             
-       
+        ofPushStyle();
+            
+        //Fadeout last boid
+        if(removeLastBoid && i == showBoidsTail%bufferSize){
+          
+            ofSetColor(255, 255, 255, removeOpacity);
+            
+        }
+        
+            
         flock.boids[i].drawVideo(playbackIndex);
-        flock.boids[i].draw();
-            
+          ofPopStyle();
             
             //Debug stuff
             if( paths[pathIndex]->polylines.size() > 0 && cvImgDisp){
@@ -761,18 +791,7 @@ void testApp::drawBoids(){
             }
             
         //TODO change to opacity fade out
-        if(removeLastBoid && flock.boids[showBoidsTail%bufferSize].getLoc().x > spanWidth  - flock.boids[showBoidsTail%bufferSize].videoScale){
-            
-                    //flock.boids[showBoidsTail%bufferSize].fadeOpacity Down
-                    //if opacity == 0
-                  showBoidsTail ++;
-            
-                    //Stop removing the last boid
-                  removeLastBoid = false;
-            
-                  cout<< "last boid removed" << endl;
-            
-            }
+        
 	
         }
     
@@ -816,8 +835,15 @@ void testApp::drawMonitor(){
     //Cutout for Recording
 	ofClear(0, 0, 0, 255);
 	
-    ofSetColor(255, 255, 255, 255); //ofSetColor can change the tint of an image
-	cutoutTex.draw(0-videoPos, (ofGetHeight()/2)-(camHeightScale/2) , camWidthScale, camHeightScale);  // correct proportions
+    ofPushStyle();
+    
+    //Opacity Mapping
+    //float t = ofMap(index, 0, NUM_FRAMES, 255, 0);
+    
+    ofSetColor(255, 255, 255,255); //ofSetColor can change the tint of an image
+	
+    cutoutTex.draw(0, (ofGetHeight()/2)-(camHeightScale/2) , camWidthScale, camHeightScale);  // correct proportions
+    ofPopStyle();
     
 	//cvColor.draw(0, (ofGetHeight()/2)-(camHeightScale/2), camWidthScale, camHeightScale);
     
@@ -1236,9 +1262,10 @@ void testApp::mouseDragged(int x, int y, int button){
 	if(button == 2){
 	
 		//This mapping allows for offscreen drawing, which enables removing of the boids
-		int mx = (int)ofMap(x, PATH_RECT_IMAGE_PAD, ofGetWidth(), 0,  spanWidth + PATH_RECT_IMAGE_PAD);
+		int mx = (int)ofMap(x, 0, ofGetWidth(), -PATH_RECT_IMAGE_PAD*2,  spanWidth + 2*PATH_RECT_IMAGE_PAD);
         int my = (int)ofMap(y, pathScaleRect.y,  pathScaleRect.y + pathScaleRect.height,  0, spanHeight );
-		tempPl.addVertex(mx, my, pathZ);
+		
+        tempPl.addVertex(mx, my, pathZ); //, pathZ
 
         
     if(pathsXML.pushTag("STROKE", lastTagNumber)){

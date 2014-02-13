@@ -17,10 +17,10 @@
 
 #define NUM_FRAMES 30
 #define NUM_PATHS 20
-#define MIN_VIDEO_SIZE 10
+#define MIN_VIDEO_SIZE 20
 #define NUM_SEQUENCES 24
 #define NUM_SERVERS 4
-#define PATH_RECT_IMAGE_PAD 200
+#define PATH_RECT_IMAGE_PAD 300
 
 
 
@@ -85,10 +85,7 @@ public:
 	
     
     //Video
-	//ofVideoGrabber 		vidGrabber;
-	//ofVideoPlayer		video;
-	
-    
+	 
     //Threaded Kinect
     int 				camWidth;
 	int 				camHeight;
@@ -126,6 +123,7 @@ public:
 	float flapThresh;
 	float downMult;
 	float upMult;
+    
 	
 	int endRecordSequenceTime;
 	int endRecordSequenceDelay;
@@ -135,6 +133,8 @@ public:
     ofFbo numberFbo;
     ofTrueTypeFont numberFont;
     ofPixels numberPixels;
+    
+    float removeOpacity;
     
 	    
 

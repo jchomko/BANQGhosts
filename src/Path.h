@@ -20,7 +20,7 @@ public:
     void reset();
     
     ofPoint getNextPoint();
-    ofPoint getNearestPoint(ofPoint _t, int _targetPath);
+    ofVec3f getNearestPoint(ofVec2f _t, int _targetPath);
     int lastNearestIndex;
     int nearestIndex;
     

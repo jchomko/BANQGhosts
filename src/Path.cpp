@@ -31,11 +31,17 @@ void Path::addPath(ofPolyline p){
     
     startPoints.push_back(verts[0]);
     endPoints.push_back(verts[verts.size()-1]);
+//    ofPolyline temp;
+//    
+//    for(int i = 0; i < verts.size();  i++ ){
+//        
+//        temp.addVertex(verts[i].x, verts[i].y);
+//        
+//        videoScales.push_back(verts[i].z);
+//        
+//    }
     
-   // for(int i = 0; i < verts.size();  i++ ){
-        polylines.push_back(p);
-   // }
-    
+    polylines.push_back(p);
 
 }
 
@@ -85,7 +91,8 @@ void Path::clear(){
     polylines.clear();
     startPoints.clear();
     endPoints.clear();
-   
+    videoScales.clear();
+    
     
 }
 
@@ -100,47 +107,42 @@ void Path::reset(){
 
 
 
-ofPoint Path::getNearestPoint(ofPoint target, int targetPath){
+ofVec3f Path::getNearestPoint(ofVec2f target, int targetPath){
     
+   vector<ofPoint> verts = polylines[targetPath].getVertices();
+    
+   // polylines[targetPath].getClosestPoint(<#const ofPoint &target#>)
    
-//    vector<ofPoint> verts = polylines[targetPath].getVertices();
-//   
-//    float minDist = 1000000;
-//    ofPoint nearest;
-//   
-//    
-//   
-//    for (int i = lastNearestIndex; i < verts.size(); i ++) {
-//            
-//            float dist = target.distance(verts[i]);
-//            
-//            if(dist < minDist ){
-//                
-//                nearestIndex = i;
-//                nearest = verts[i];
-//                minDist = dist;
-//              
-//                
-//            }
-//            
-//        }
-//    
-//    cout<< "nearest Index " << nearestIndex <<  "diferece" << nearestIndex - lastNearestIndex << endl;
-//    
-//    if(nearestIndex == lastNearestIndex ){
-//        
-//         lastNearestIndex ++;
-//         nearest = verts[lastNearestIndex];
-//        
-//    }
-//    
-//    lastNearestIndex = nearestIndex;
-//
-//    
-//   
-//    
-//    return nearest;
+    ofVec3f closestPoint;
+    float minDist = 1000000;
     
+    for (int i = 0; i < verts.size(); i ++) {
+        
+        float dist = target.distance(ofVec2f(verts[i].x, verts[i].y));
+        // float distX = (target.x - verts[i].x);
+    
+        // float distY = (predict.y - verts[i].y);
+        //float dist = abs(distX ) + abs(distY);
+        
+        if(dist < minDist){
+            
+            nearestIndex = i;
+            closestPoint = verts[i];
+            
+            minDist = dist;
+            
+            
+        }
+        
+        
+    }
+    
+    videoScales[nearestIndex];
+    
+    return ofVec3f(closestPoint);
+    
+    
+
 }
 
 
