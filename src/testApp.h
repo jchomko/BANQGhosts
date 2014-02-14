@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _TEST_APP
 #define _TEST_APP
 
@@ -15,11 +17,11 @@
 
 
 
-#define NUM_FRAMES 30
-#define NUM_PATHS 20
-#define MIN_VIDEO_SIZE 20
+
+#define NUM_FRAMES 50
+#define NUM_PATHS 10
+#define MIN_VIDEO_SIZE 30
 #define NUM_SEQUENCES 24
-#define NUM_SERVERS 4
 #define PATH_RECT_IMAGE_PAD 300
 
 
@@ -38,10 +40,10 @@ public:
 	void exit();
 
 	void updateVideo();
-	
     void drawCVImages();
     void drawBoids();
     void drawMonitor();
+    void recordBlanks();
     
 	
 	void keyPressed(int key);
@@ -52,21 +54,11 @@ public:
 	void mouseReleased(int x, int y, int button);
 	void windowResized(int w, int h);
 	
-	void recordBlanks();
-    
+	
 	//Syphon
-	ofTexture backgroundTex; 
-	ofTexture foregroundTex;	
-	ofTexture textTex;
-	ofxSyphonServer spanServer;
-	ofxSyphonServer backgroundServer;
-	//ofxSyphonServer textServer;
-    ofxSyphonServer servers[NUM_SERVERS];
+	 ofxSyphonServer spanServer;
 	ofxSyphonClient mClient;
-	float testX, testY;
-	ofPixels spanPixels;
-    ofTexture spanTextures[NUM_SERVERS];
-    
+	
     
 	// UI 
 	ofxUICanvas *editGui;
@@ -74,18 +66,14 @@ public:
     ofxUIDropDownList *ddl; 
 	void guiEvent(ofxUIEventArgs &e);
 	bool drawFill; 
-	string currentPath;
 	
-	 //Midi Input
-    
+     //Midi Input
     ofxMidiIn	midiIn;
+    ofxMidiIn   osculatorIn;
+    
 	ofxMidiMessage midiMessage;
     void newMidiMessage(ofxMidiMessage& eventArgs);
-	
-	
     
-    //Video
-	 
     //Threaded Kinect
     int 				camWidth;
 	int 				camHeight;
@@ -98,42 +86,30 @@ public:
 	int threshold;
 	int diffMode;
 	ofxCvGrayscaleImage cvBackground;
-	ofxCvGrayscaleImage cvGray;
-	ofxCvGrayscaleImage cvThresh;
+	ofxCvGrayscaleImage depthGray;
+    ofxCvGrayscaleImage cvThresh;
 	ofxCvColorImage		cvColor;
 	ofxCvContourFinder 	contourFinder;
-	ofxCvGrayscaleImage lastGray;
-	ofxCvGrayscaleImage frameDiff;
-	int blockSize;
+    ofxCvColorImage     colorBackground;
+	
+    //int blockSize;
 	bool getBackground;
 	
 	
 	//Recording
-    
-  	float endSpeed;
-	float videoPos;
-	float videoVel;
-	float videoGravity;
-	bool newSequence;
+    float endSpeed;
 	int record;
 	int index;
-	float flap;
-	float lastFlap;
-    float mappedFlap;
-	float flapThresh;
-	float downMult;
-	float upMult;
-    
+	
 	
 	int endRecordSequenceTime;
 	int endRecordSequenceDelay;
 	bool endRecordSequence;
     bool bufferFull;
-	bool bufferFullDuringShow;
+	
     ofFbo numberFbo;
     ofTrueTypeFont numberFont;
     ofPixels numberPixels;
-    
     float removeOpacity;
     
 	    
@@ -147,23 +123,12 @@ public:
 	int showBoidsTail;
 	bool showBoids;
 	bool removeLastBoid;
-	float staticFlyingPush;
-	float staticFlyingPull;
 	unsigned char *  cutoutPixels;
 	ofTexture cutoutTex;
 	int nrDisplaySequences;
-	int bufferSize;
-	int play;
 	int playbackIndex;  
-	int sequenceIndex;
-	int playSequenceIndex;
-	int startIndex;
-	int scale;
-	float flapMagnitude;
-	float scaleMagnitude; 
 	int camHeightScale;
 	int camWidthScale;
-    long frameRateTimer;
     bool frameDirection;
 	
 
@@ -171,14 +136,11 @@ public:
 	Path pth;
     Path **paths;
     int pathIndex;
-    string pathId;
     ofxXmlSettings pathsXML;
     ofPolyline tempPl;
     float pathZ;
     bool pathZoom;
     float boidRotation;
-    ofPoint closestPoint;
-    ofVec2f predict;
     ofRectangle pathScaleRect;
    
     
@@ -189,15 +151,8 @@ public:
 	//Flocking
 	ofxFlocking flock;
 	float setSeparation;
-	float setAlignment;
-	float setCohesion;
 	float setMaxSpeed;
 	float setForce;
-	float setDesiredSeparation;
-	int nrBoids;
-	float lineFollowMult;
-	float pushMaxSpeed;
-    
 	
     //Show Managment
 	int showState;

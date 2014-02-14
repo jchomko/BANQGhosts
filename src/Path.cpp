@@ -31,60 +31,20 @@ void Path::addPath(ofPolyline p){
     
     startPoints.push_back(verts[0]);
     endPoints.push_back(verts[verts.size()-1]);
-//    ofPolyline temp;
-//    
-//    for(int i = 0; i < verts.size();  i++ ){
-//        
-//        temp.addVertex(verts[i].x, verts[i].y);
-//        
-//        videoScales.push_back(verts[i].z);
-//        
-//    }
     
     polylines.push_back(p);
-
-}
-
-void Path::display(){
-	
-    ofPushStyle();
-    ofSetColor( 0, 0, 200, 170);
     
-//    for (int i = 0; i >polylines.size(); i ++) {
-//        
-//        polylines[i].draw();
-//        
-//        vector<ofPoint> pth = polylines[i].getVertices();
-//        
-//        for (int p = 0; p < pth.size(); p++ ) {
-//            
-//            float z = pth[p].z;
-//            
-//            ofEllipse(pth[p].x, pth[p].y , z, z);
-//            
-//        }
-//        
-//    
-//        ofPushStyle();
-//        ofFill();
-//        ofSetColor(255, 0, 0);
-//        ofEllipse(endPoints[i], 40, 40);
-//        ofPopStyle();
-//        
-//        ofPushStyle();
-//    ofFill();
-//        ofSetColor(0, 255, 0);
-//        ofEllipse(startPoints[i], 40, 40);
-//        ofPopStyle();
+    if(p.size() > 0){
     
+        isAllocated = true;
         
-//    }
+    }
     
-    ofPopStyle();
+    pathColors.push_back(ofColor(ofRandom(100,255),ofRandom(100,255),ofRandom(100,255)));
     
-	
-	
+
 }
+
 
 void Path::clear(){
     
@@ -92,6 +52,7 @@ void Path::clear(){
     startPoints.clear();
     endPoints.clear();
     videoScales.clear();
+    pathColors.clear();
     
     
 }
@@ -111,7 +72,6 @@ ofVec3f Path::getNearestPoint(ofVec2f target, int targetPath){
     
    vector<ofPoint> verts = polylines[targetPath].getVertices();
     
-   // polylines[targetPath].getClosestPoint(<#const ofPoint &target#>)
    
     ofVec3f closestPoint;
     float minDist = 1000000;

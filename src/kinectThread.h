@@ -20,8 +20,7 @@ public:
     ofPixels     depthPix;
     bool        isFrameNew;
     ofxKinect kinect;
-    //ofVideoGrabber cam;
-    
+    ofxKinectCalibration calibration;
     
     kinectThread(){
         
@@ -45,13 +44,7 @@ public:
             
         }
         
-              
-        
-        
     }
-    
- 
-    
 
 };
 

@@ -5,8 +5,12 @@ OF_PATH = ../../..
 //THIS HAS ALL THE HEADER AND LIBS FOR OF CORE
 #include "../../../libs/openFrameworksCompiled/project/osx/CoreOF.xcconfig"
 
+
 OTHER_LDFLAGS = $(OF_CORE_LIBS) 
 HEADER_SEARCH_PATHS = $(OF_CORE_HEADERS) $(OF_PATH)/addons/ofxOpenCv/src $(OF_PATH)/addons/ofxOpenCv/libs/opencv/include $(OF_PATH)/addons/ofxOpenCv/libs/opencv/include/opencv 
+
+// this is required for ofxConnexion to register itself to the app
+GCC_PREPROCESSOR_DEFINITIONS = EXECUTABLE_NAME="\"$(EXECUTABLE_NAME)\""
 
 
 // path to the addons dir
@@ -26,5 +30,4 @@ OFX_MIDI_HEADERS = $(ADDONS_PATH)/ofxMidi/src $(ADDONS_PATH)/ofxMidi/src/rtmidi
 // all addons
 OF_ADDON_HEADERS = $(OFX_KINECT_HEADERS) $(OFX_OPENCV_HEADERS)
 OF_ADDON_LIBS = $(OFX_KINECT_LIBS)
-
 

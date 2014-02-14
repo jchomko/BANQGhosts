@@ -15,100 +15,63 @@
 
 class Boid {
 public:
-	Boid();
-	Boid(int x, int y, int _nf);
+	//Boid();
+	
+    Boid(int x, int y, int _nf);
 	
 	void update(vector<Boid> &boids, Path * path);
-    
     void seekPath(Path * path);
-    
-	void draw();
-    void drawDebug();
-    
-	
+    void draw();
     void seek(ofVec2f target);
     void avoid(ofVec2f target);
     void arrive(ofVec2f target);
-	void updateValues(float separation, float maxforce, float maxspeed, float seekforce);
-	void push(float ms);
-	void flock(vector<Boid> &boids);
+	void updateValues(float separation, float maxforce, float maxspeed);
+	
+    void flock(vector<Boid> &boids);
 	void follow(Path * path, int i);
-    void setLoc(ofVec2f p);
     void averages();
+    void addNoise();
+    void drawVideo(int index);
     
-	
-	ofVec2f getPredictLoc();
-	float getScale();
-	
-	ofVec3f getLoc();
 	ofVec2f steer(ofVec2f target, bool slowdown);	
 	ofVec2f separate(vector<Boid> &boids);
-	ofVec2f align(vector<Boid> &boids);
-	ofVec2f cohesion(vector<Boid> &boids);
 	
+  
 	ofVec3f loc,vel,acc;
 	ofVec3f predict;
-	ofVec2f origin;
-	ofVec2f pushLoc;
 	ofVec3f closestPoint;
-    ofVec3f lastClosestPoint;
-    
-    int nearestIndex;
-    int lastNearestIndex;
-    
-	float psh;
-    
-    
-	vector <ofVec3f> locAvgs;
+   
+    vector <ofVec3f> locAvgs;
     vector<float> avgPerspective;
     vector<ofVec3f> velAvgs;
     ofVec3f velAvg;
+    ofVec3f noise;
+	ofVec3f locAvg;
     
     float perspectiveAvg;
-    void addNoise();
-
-	
-	//float p;
-	//int hold;
-	//float scale;
-	float xNoise;
+  	
+    float xNoise;
 	float yNoise;
 	float zNoise;
 	float xNoiseInc;
 	float yNoiseInc;
 	float zNoiseInc;
-	ofVec3f noise;
-	ofVec3f locAvg;
+   
     
-    
-	float r;
-	float maxforce;
-	float maxSteerForce;
+    float maxforce;
 	float maxspeed;
-	float s; //Separation
-	float a; //Cohesion
-	float c; //Alignement
-	float neighbordist;
-	float desiredseparation;
-		
-	float angle;
-    
+	float separationMult;
+	
     float videoScale;
     
-    float rot;
-    
-    //Sequence Variables
     int num_frames;
-    void drawVideo(int index);
-	//ofPixels * pixels;
+   
+    
     ofTexture * pixels;
     ofTexture dispTex;
     
-    //Path
+    float maxSpeedMult;
     int pathFollowIndex;
-    
-    float lastZ;
-    int lastPathId;
     
     
 };

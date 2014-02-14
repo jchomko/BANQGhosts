@@ -29,10 +29,12 @@ public:
     vector <float> videoScales;
     vector <ofPoint> startPoints;
     vector <ofPoint> endPoints;
+    vector<ofColor> pathColors;
     
     ofImage background;
     
     int stuckInt;
+    bool isAllocated;
     
 	float radius;
 	float rot;

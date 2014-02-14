@@ -16,6 +16,7 @@
 		7D5580D3189AE14E00A7FBA1 /* Boid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D5580D2189AE14E00A7FBA1 /* Boid.cpp */; };
 		7D73E9D618A447B10009A049 /* ofxRuiThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D73E9D218A447B10009A049 /* ofxRuiThread.cpp */; };
 		7D85AB7718980A5B00A01B02 /* Syphon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D85AB7618980A5B00A01B02 /* Syphon.framework */; };
+		7D8E04C818AEBAA3009F8ECB /* banq.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7D8E04C618AEBA5B009F8ECB /* banq.icns */; };
 		7DB9430218A2C8A600020081 /* cameras.c in Sources */ = {isa = PBXBuildFile; fileRef = 7DB942B118A2C8A600020081 /* cameras.c */; };
 		7DB9430318A2C8A600020081 /* core.c in Sources */ = {isa = PBXBuildFile; fileRef = 7DB942B218A2C8A600020081 /* core.c */; };
 		7DB9430418A2C8A600020081 /* freenect.lib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DB942B718A2C8A600020081 /* freenect.lib */; };
@@ -144,6 +145,7 @@
 		7D73E9D218A447B10009A049 /* ofxRuiThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxRuiThread.cpp; sourceTree = "<group>"; };
 		7D73E9D318A447B10009A049 /* ofxRuiThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxRuiThread.h; sourceTree = "<group>"; };
 		7D85AB7618980A5B00A01B02 /* Syphon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Syphon.framework; path = ../../../addons/ofxSyphon/libs/Syphon/lib/osx/Syphon.framework; sourceTree = "<group>"; };
+		7D8E04C618AEBA5B009F8ECB /* banq.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = banq.icns; sourceTree = "<group>"; };
 		7DB942AE18A2C8A600020081 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		7DB942B118A2C8A600020081 /* cameras.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cameras.c; sourceTree = "<group>"; };
 		7DB942B218A2C8A600020081 /* core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = core.c; sourceTree = "<group>"; };
@@ -519,6 +521,14 @@
 				7D73E9D318A447B10009A049 /* ofxRuiThread.h */,
 			);
 			path = src;
+			sourceTree = "<group>";
+		};
+		7D8E04C518AEBA31009F8ECB /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				7D8E04C618AEBA5B009F8ECB /* banq.icns */,
+			);
+			name = resources;
 			sourceTree = "<group>";
 		};
 		7DB942AD18A2C8A600020081 /* ofxKinect */ = {
@@ -1414,6 +1424,7 @@
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,
 				E45BE5980E8CC70C009D7055 /* frameworks */,
+				7D8E04C518AEBA31009F8ECB /* resources */,
 				7D5256EB1898410C00E816E3 /* BANQGhostsDebug.app */,
 			);
 			sourceTree = "<group>";
@@ -1456,6 +1467,7 @@
 				E4B6FFFD0C3F9AB9008CF71C /* Run Script */,
 				E4C2427710CC5ABF004149E2 /* CopyFiles */,
 				CB04591116437BE800296F4A /* CopyFiles */,
+				7D8E04C718AEBA92009F8ECB /* Resources */,
 			);
 			buildRules = (
 			);
@@ -1507,6 +1519,17 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7D8E04C718AEBA92009F8ECB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7D8E04C818AEBAA3009F8ECB /* banq.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		E4B6FFFD0C3F9AB9008CF71C /* Run Script */ = {

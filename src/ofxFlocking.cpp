@@ -25,9 +25,9 @@ void ofxFlocking::draw() {
 
 
 
-void ofxFlocking::addBoid() {
-	boids.push_back(Boid());
-}
+//void ofxFlocking::addBoid() {
+//	boids.push_back(Boid());
+//}
 
 void ofxFlocking::addBoid(int x, int y, int nf) {
 	boids.push_back(Boid(x,y,nf));
