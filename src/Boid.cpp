@@ -39,7 +39,7 @@ Boid::Boid(int x, int y, int nf) {
     }
     //Sequence variables
     
-     maxSpeedMult = ofRandom(0.1, 0.7);
+     maxSpeedMult = ofRandom(0.3, 0.7);
     
 	
 }
@@ -344,10 +344,10 @@ void Boid::follow(Path * path, int i){
     
     ofVec3f startVel;
     
-    velAvgs.clear();
-    locAvgs.clear();
+   // velAvgs.clear();
+    //locAvgs.clear();
     
-    videoScale = 10;
+    //videoScale = 10;
     
     pathFollowIndex = ofRandom(path->polylines.size());
     
@@ -357,7 +357,7 @@ void Boid::follow(Path * path, int i){
         
         startVel.normalize();
         
-        loc.set(path->startPoints[pathFollowIndex] - startVel * i * ofRandom(80,130));
+        //loc.set(path->startPoints[pathFollowIndex] - startVel * i * ofRandom(80,130));
         
         vel.set(startVel);
         

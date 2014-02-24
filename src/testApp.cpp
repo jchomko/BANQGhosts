@@ -99,6 +99,11 @@ void testApp::setup(){
     kinThread.kinect.setUseTexture(false);
     kinThread.colorPix.allocate(640, 480, OF_PIXELS_RGB);
     kinThread.depthPix.allocate(640, 480, OF_PIXELS_MONO);
+   
+    kinThread.depthPixFloat = new float[kinThread.kinect.width*kinThread.kinect.height];
+    kinThread.depthPixChar = new unsigned char[kinThread.kinect.width*kinThread.kinect.height];
+    
+   // cout << "kienct width : " << kinThread.kinect.width << endl;
     kinThread.initAndSleep();
     
 	
@@ -148,7 +153,7 @@ void testApp::setup(){
     for(int i = 0; i < NUM_PATHS; i ++){
         
         paths[i] = new Path();
-        string  l  = ofToString(i)+".png";
+        string  l  = ofToString(i+1)+".png";
         cout << "trying to load image: " + l << endl;
         
         paths[i]->background.loadImage(l);
@@ -245,8 +250,25 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-	 
-    kinThread.updateOnce();
+	
+     kinThread.updateOnce();
+    
+//    cout << " new frame ? " << kinThread.timeSinceLastFrame << endl;
+   
+//    if(kinThread.timeSinceLastFrame > 1000){
+//    
+//        
+//       
+//        cout << "attempt reconnect";
+//        kinThread.kinect.close();
+//        
+//        if(kinThread.)
+//        kinThread.kinect.init();
+//        kinThread.kinect.open();
+//        kinThread.kinect.setCameraTiltAngle(0);
+//        kinThread.kinect.setUseTexture(false);
+////
+//   }
     
   
     //Draw Flying Videos to Syphon Layer
@@ -295,16 +317,16 @@ void testApp::update(){
     
     
     
-    if(mode == 1){
-        if(pathZoom){
-            pathZ += 2;
-        }else{
-         if(pathZ > MIN_VIDEO_SIZE) {
-            pathZ -= 2;
-           }
-        }
-    
-    }
+//    if(mode == 1){
+//        if(pathZoom){
+//            pathZ += 2;
+//        }else{
+//         if(pathZ > MIN_VIDEO_SIZE) {
+//            pathZ -= 2;
+//           }
+//        }
+//    
+//    }
     
 }
 
@@ -369,7 +391,7 @@ void testApp::updateVideo(){
 		
 		cvThresh.threshold(threshold);
         
-        cvThresh.blur();
+        cvThresh.blur(10);
         
 		
         //For flapping - may not be necessary
@@ -377,7 +399,7 @@ void testApp::updateVideo(){
 		
         //Blurring the threshold image before using it as a cutout softens edges
         //cvThresh.blur();
-        //cvThresh.blurHeavily();
+       // cvThresh.blurHeavily();
         
 		//Removing Background
                
@@ -394,7 +416,7 @@ void testApp::updateVideo(){
 				cutoutPixels[(i*4)+0] = colorPix[(i*3)+0];
 				cutoutPixels[(i*4)+1] = colorPix[(i*3)+1];
 				cutoutPixels[(i*4)+2] = colorPix[(i*3)+2];
-				cutoutPixels[(i*4)+3] = ofMap(grayPix[i],threshold, 255,0,255);
+				cutoutPixels[(i*4)+3] = grayPix[i]; //
             
             //If no content, set pixel to be translucent
 			}else if(grayPix[i]  < threshold){
@@ -509,15 +531,23 @@ void testApp::draw(){
         pathScaleRect.x = PATH_RECT_IMAGE_PAD;
         pathScaleRect.y = ofGetHeight()/2;
         
+        
+        
         ofPushMatrix();
         
         ofTranslate(pathScaleRect.x, pathScaleRect.y);
+        
         
         ofScale(wS, wS);
         
         fourScreenSpan.draw(0, 0);
         
         ofPopMatrix();
+        ofPushStyle();
+        ofNoFill();
+        ofSetColor(200, 0, 0, 200);
+        ofEllipse(ofGetMouseX(), ofGetMouseY(), pathZ/2, pathZ/2);
+        ofPopStyle();
     }
     
        
@@ -577,6 +607,8 @@ void testApp::drawBoids(){
         ofSetColor(200, 0, 0, 200);
         
         tempPl.draw();
+        
+          
         
         vector<ofPoint> pth = tempPl.getVertices();
         
@@ -789,7 +821,7 @@ void testApp::drawCVImages()
     //numberFbo.draw(camWidth*2, 100, camWidth, camHeight);
     
 	//cvColor.draw(100+camWidth, 100, camWidth, camHeight);
-	//depthGray.draw(100, 100+camHeight, camWidth, camHeight);
+	//depthGray.draw(350, 100+camHeight, camWidth, camHeight);
 	//cvBackground.draw(100+camWidth, 100+camHeight, camWidth, camHeight);
 	//cvThresh.draw(100, 100+camHeight*2, camWidth, camHeight);
 	
@@ -816,13 +848,26 @@ void testApp::drawCVImages()
     info += "Framerate: " + ofToString(ofGetFrameRate()) + "\n";
     info += "Remove Last Boid: " + ofToString(removeLastBoid) + "\n";
 	
+    info += "\n \n \n";
+    
+    info += "Keyboard mappings:  \n";
+    info += "Clear paths = x \n";
+    info += "Switch Mode = m \n";
+    info += "Trigger Record = r \n";
+    info += "Capture Background = b \n";
+    info += "Increase Path Size = UP \n";
+    info += "Decreas Path Size = DOWN \n";
+    
+    
+    
+    
+    
 	info += message +"\n";
 	
 	ofSetHexColor(0x444342);
-	ofDrawBitmapString(info, 30, 290);
+	ofDrawBitmapString(info, 350, 30);
 	
 
-	
 }
 
 //--------------------------------------------------------------
@@ -834,6 +879,26 @@ void testApp::keyPressed  (int key){
 	// use alt-tab to navigate to the settings
 	// window. we are working on a fix for this...
 	
+    if(key == OF_KEY_UP){
+        if(mode == 1){
+        pathZ += 6;
+        }else{
+        threshold += 2;
+        }
+    }
+    
+    if(key == OF_KEY_DOWN){
+        
+        if(mode == 1 && pathZ > MIN_VIDEO_SIZE){
+            pathZ -= 6;
+        }
+        
+        if(mode == 0 || mode == 2){
+             threshold -= 2;
+        }
+        
+    }
+    
 	if (key == 'f' || key == 'F') {
 		ofToggleFullscreen();
 	}
@@ -898,13 +963,13 @@ void testApp::keyPressed  (int key){
 //	}
 //	
     
-	if(key == OF_KEY_UP){
-		threshold += 2;
-	}else if(key == OF_KEY_DOWN){
-		threshold -= 2;
-		if(threshold < 0)threshold = 0;
-	}
-     
+//	if(key == OF_KEY_UP){
+//		threshold += 2;
+//	}else if(key == OF_KEY_DOWN){
+//		threshold -= 2;
+//		if(threshold < 0)threshold = 0;
+//	}
+    
 	if(key == 'r'){
 		 
      record = 1;
@@ -988,7 +1053,7 @@ void testApp::mouseDragged(int x, int y, int button){
 	if(button == 2){
 	
 		//This mapping allows for offscreen drawing, which enables removing of the boids
-		int mx = (int)ofMap(x, 0, ofGetWidth(), -PATH_RECT_IMAGE_PAD*2,  spanWidth + 2*PATH_RECT_IMAGE_PAD);
+		int mx = (int)ofMap(x, 0, ofGetWidth(), PATH_RECT_IMAGE_PAD*-2,  spanWidth + 2*PATH_RECT_IMAGE_PAD);
         int my = (int)ofMap(y, pathScaleRect.y,  pathScaleRect.y + pathScaleRect.height,  0, spanHeight );
 		
         tempPl.addVertex(mx, my, pathZ); //, pathZ
@@ -1038,7 +1103,7 @@ void testApp::mouseReleased(int x, int y, int button){
 void testApp::windowResized(int w, int h){
     //This doesn't need to be calculated for each update
     camWidthScale = ofGetWidth();
-	camHeightScale = camWidthScale *0.75; //should give proportions of 16:9
+	camHeightScale = camWidthScale * 0.75; //should give proportions of 4:3
 
     
     
@@ -1179,7 +1244,10 @@ void testApp::newMidiMessage(ofxMidiMessage& msg) {
 
 void testApp::exit(){
 	
+    kinThread.pauseUpdate();
     kinThread.stop();
+    kinThread.stopThread();
+    
     
     showXML.setValue("PATH_INDEX", pathIndex);
     showXML.saveFile("show.xml");
