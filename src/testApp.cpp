@@ -6,6 +6,7 @@ void testApp::setup(){
 	
 	
     ofEnableAlphaBlending();
+    //ofEnableSmoothing();
 	ofSetFrameRate(30);
     
     

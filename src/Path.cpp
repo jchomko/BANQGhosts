@@ -70,21 +70,24 @@ void Path::reset(){
 
 ofVec3f Path::getNearestPoint(ofVec2f target, int targetPath){
     
-   vector<ofPoint> verts = polylines[targetPath].getVertices();
+    ofVec3f closestPoint(0,0,0);
     
-   
-    ofVec3f closestPoint;
-    float minDist = 1000000;
     
-    for (int i = 0; i < verts.size(); i ++) {
+    if(targetPath <= polylines.size()){
+    
+        vector<ofPoint> verts = polylines[targetPath].getVertices();
+    
+        float minDist = 1000000;
+    
+        for (int i = 0; i < verts.size(); i ++) {
         
-        float dist = target.distance(ofVec2f(verts[i].x, verts[i].y));
-        // float distX = (target.x - verts[i].x);
+            float dist = target.distance(ofVec2f(verts[i].x, verts[i].y));
+            // float distX = (target.x - verts[i].x);
     
-        // float distY = (predict.y - verts[i].y);
-        //float dist = abs(distX ) + abs(distY);
+            // float distY = (predict.y - verts[i].y);
+            //float dist = abs(distX ) + abs(distY);
         
-        if(dist < minDist){
+            if(dist < minDist){
             
             nearestIndex = i;
             closestPoint = verts[i];
@@ -99,10 +102,12 @@ ofVec3f Path::getNearestPoint(ofVec2f target, int targetPath){
     
     videoScales[nearestIndex];
     
+    }
+    
+    
     return ofVec3f(closestPoint);
     
     
-
 }
 
 

@@ -119,10 +119,12 @@ void Boid::averages(){
     
     velAvgs.push_back(v); // vel
 	
-	if(velAvgs.size()> 30){
+	if(velAvgs.size()> 40){
     	velAvgs.erase(velAvgs.begin());
     }
-	velAvg.set(0, 0,0);
+	
+    velAvg.set(0, 0,0);
+    
     for(int i = 0; i < velAvgs.size(); i ++){
     	velAvg += velAvgs[i];
     }

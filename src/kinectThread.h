@@ -54,7 +54,7 @@ public:
           depthPixels.push_back(kinect.getDepthPixels());
             
             
-            if(depthPixels.size() > 50){
+            if(depthPixels.size() > 20){
             
                 depthPixels.erase(depthPixels.begin());
             
