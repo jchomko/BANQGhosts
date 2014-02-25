@@ -41,11 +41,10 @@ Press 'r' to trigger a recording
 
 
 Modify the Video Path:
-Press 'u' to show the debug information. The path appears as a red line.
-Press 'x' to clear the path. Hold down the right mouse button to draw a new path. The space bar increments the path zoom. Releasing the bar decreases the zoom.
+Press 'm' until you see the path. Choose a path to modify from the PATHs drop down list.
+Press the right mouse button and drag to draw a path. Up and Down arrow keys control the size of the path - this size corresponds to the size of the video displayed.
 
-
-Show Debug Info:
-Press 'u' to show debug info. On the video record screen you should see the CV frames, and in the syphon "bau
+Setup OSCulator
+The Space Navigator button is connected through OSCulator. Open a blank OSCulator window, then open the BANQGhosts. In OSCulator, select the User Space Navigator toggle under the Window menu, and then tap the space navigator. A list of messages will appear. Set the last message ('/sp/1/trans/xyz/2' to send a MIDI Note event. The value can be anything, the channel must be 10
 
 

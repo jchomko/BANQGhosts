@@ -56,8 +56,8 @@ public:
 	
 	
 	//Syphon
-	 ofxSyphonServer spanServer;
-	ofxSyphonClient mClient;
+    ofxSyphonServer spanServer;
+	//ofxSyphonClient mClient;
 	
     
 	// UI 

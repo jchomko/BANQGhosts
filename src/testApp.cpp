@@ -20,9 +20,9 @@ void testApp::setup(){
 	//if we need to package up program
 	
 	//Syphon
-	mClient.setup();
-    mClient.setApplicationName("Simple Server");
-    mClient.setServerName("");
+	//mClient.setup();
+    //mClient.setApplicationName("Simple Server");
+    //mClient.setServerName("");
     spanServer.setName("Span");
      
     //UI
@@ -505,7 +505,7 @@ void testApp::updateVideo(){
     }
 	
     //Draw Syphon client
-    mClient.draw(50, 50);
+    //mClient.draw(50, 50);
 	
     
        
@@ -1260,7 +1260,7 @@ void testApp::exit(){
     delete editGui;
     delete recordGui;
     
-    mClient.unbind();
+     //mClient.unbind();
    // ofxConnexion::stop();
 	
 
