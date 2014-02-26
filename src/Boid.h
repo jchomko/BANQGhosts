@@ -29,6 +29,8 @@ public:
 	
     void flock(vector<Boid> &boids);
 	void follow(Path * path, int i);
+    void resetLoc(Path * path, int i);
+    
     void averages();
     void addNoise();
     void drawVideo(int index);

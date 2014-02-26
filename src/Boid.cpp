@@ -39,7 +39,7 @@ Boid::Boid(int x, int y, int nf) {
     }
     //Sequence variables
     
-     maxSpeedMult = ofRandom(0.3, 0.7);
+     maxSpeedMult = ofRandom(0.3, 0.9);
     
 	
 }
@@ -144,7 +144,7 @@ void Boid::drawVideo(int index){
     //Draw the Sequence
     ofPushMatrix();
     
-    ofTranslate(locAvg.x, locAvg.y + noise.y*(videoScale/6));
+    ofTranslate(locAvg.x, locAvg.y + noise.y*(videoScale/12));
     
     ofRotate(heading2D - 90); // rot
     // ofRotateY(perspectiveAvg);
@@ -183,9 +183,12 @@ void Boid::seekPath(Path * path){
         videoScale = closestPoint.z;
         
         //Make sure always goes offscreen
-        if(loc.distance(path->endPoints[pathFollowIndex]) <  velAvg.z){ // || loc.x > 5120 + videoScale/2
+        
+        if( loc.distance(path->endPoints[pathFollowIndex]) <  velAvg.z ){ // || loc.x > 5120 + videoScale/2
             
-                follow(path, ofRandom(2));
+                //follow(path, ofRandom(2));
+                resetLoc(path, ofRandom(2));
+            
          }
 
     }
@@ -346,7 +349,7 @@ void Boid::follow(Path * path, int i){
     
     ofVec3f startVel;
     
-   // velAvgs.clear();
+    //velAvgs.clear();
     //locAvgs.clear();
     
     //videoScale = 10;
@@ -360,6 +363,33 @@ void Boid::follow(Path * path, int i){
         startVel.normalize();
         
         //loc.set(path->startPoints[pathFollowIndex] - startVel * i * ofRandom(80,130));
+        
+        vel.set(startVel);
+        
+    }
+    
+}
+
+
+//Reset boids on a path - also takes random path
+void Boid::resetLoc(Path * path, int i){
+    
+    ofVec3f startVel;
+    
+    velAvgs.clear();
+    locAvgs.clear();
+    
+    videoScale = 10;
+    
+    pathFollowIndex = ofRandom(path->polylines.size());
+    
+    if(path->startPoints.size() > 0){
+        
+        startVel = path->polylines[pathFollowIndex].getVertices()[1] - path->polylines[pathFollowIndex].getVertices()[0];
+        
+        startVel.normalize();
+        
+        loc.set(path->startPoints[pathFollowIndex] - startVel * i * ofRandom(80,130));
         
         vel.set(startVel);
         

@@ -468,7 +468,7 @@ void testApp::updateVideo(){
 				
                 //Put that boid offscreen at start of path
                 
-                flock.boids[showBoidsHead%NUM_SEQUENCES].follow( paths[pathIndex], 0);
+                flock.boids[showBoidsHead%NUM_SEQUENCES].resetLoc(paths[pathIndex], 0);
 				
                 //Increment display int
 				showBoidsHead ++;
@@ -858,6 +858,7 @@ void testApp::drawCVImages()
     info += "Capture Background = b \n";
     info += "Increase Path Size = UP \n";
     info += "Decreas Path Size = DOWN \n";
+    info += "Finish path = 'd' \n";
     
     
     
@@ -1026,9 +1027,28 @@ void testApp::keyPressed  (int key){
     }
 	
     if(key == 'n'){
-        flock.follow(paths[pathIndex]);
+        flock.resetLoc(paths[pathIndex]);
         
     }
+    
+//    if(key == 'd'){
+//       //Done one line
+//        if (tempPl.size() > 0) {
+//            
+//            //tempPl.simplify();
+//            
+//            paths[pathIndex]->addPath(tempPl);
+//            paths[pathIndex]->rot = boidRotation;
+//            pathsXML.setValue("ROTATE", boidRotation);
+//            
+//            tempPl.clear();
+//            
+//        }
+//        pathsXML.saveFile("paths.xml");
+//        
+//        
+//    }
+//    
 	
 	
 	
@@ -1088,7 +1108,7 @@ void testApp::mouseReleased(int x, int y, int button){
     
     if (tempPl.size() > 0) {
         
-        tempPl.simplify();
+        //tempPl.simplify();
         
         paths[pathIndex]->addPath(tempPl);
         paths[pathIndex]->rot = boidRotation;
@@ -1097,7 +1117,7 @@ void testApp::mouseReleased(int x, int y, int button){
         tempPl.clear();
         
     }
-     pathsXML.saveFile("paths.xml");
+//     pathsXML.saveFile("paths.xml");
 }
 
 //--------------------------------------------------------------
